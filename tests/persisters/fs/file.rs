@@ -30,7 +30,9 @@ fn exists_return_true() -> postit::Result<()> {
 fn format_from() {
     assert_eq!(Format::from("txt"), Format::Csv);
     assert_eq!(Format::from("csv"), Format::Csv);
+    #[cfg(feature = "json")]
     assert_eq!(Format::from("json"), Format::Json);
+    #[cfg(feature = "xml")]
     assert_eq!(Format::from("xml"), Format::Xml);
 }
 
@@ -170,6 +172,7 @@ fn get_persister_csv() -> postit::Result<()> {
 }
 
 #[test]
+#[cfg(feature = "json")]
 fn get_persister_json() -> postit::Result<()> {
     let mock = MockPath::create(Format::Json)?;
 
@@ -184,6 +187,7 @@ fn get_persister_json() -> postit::Result<()> {
 }
 
 #[test]
+#[cfg(feature = "xml")]
 fn get_persister_xml() -> postit::Result<()> {
     let mock = MockPath::create(Format::Xml)?;
 
@@ -303,7 +307,7 @@ fn clean_err_doesnt_exist() -> postit::Result<()> {
 
 #[test]
 fn remove_ok() -> postit::Result<()> {
-    let mock = MockPath::create(Format::Json)?;
+    let mock = MockPath::create(Format::Csv)?;
     let file = File::from(mock.to_string())?;
 
     assert!(file.remove().is_ok());

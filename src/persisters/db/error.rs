@@ -17,10 +17,12 @@ pub enum Error {
     IncorrectConnectionString,
 
     /// Represent a `SQLite` error.
+    #[cfg(feature = "sqlite")]
     #[error("Error on SQLite: {0}")]
     Sqlite(#[from] sqlite::Error),
 
     /// Represent a `MongoDB` error.
+    #[cfg(feature = "mongo")]
     #[error("Error on MongoDB: {0}")]
     Mongo(#[from] mongodb::error::Error),
 

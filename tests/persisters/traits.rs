@@ -1,9 +1,15 @@
+#[cfg(feature = "mongo")]
 use postit::db::{Mongo, Protocol};
 use postit::fs::{Csv, Format};
-use postit::traits::{DbPersister, FilePersister};
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
+use postit::traits::DbPersister;
+use postit::traits::FilePersister;
 use postit::Postit;
 
-use crate::mocks::{MockConn, MockPath};
+use crate::mocks::MockPath;
+
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
+use crate::mocks::MockConn;
 
 #[test]
 fn persister_eq() -> postit::Result<()> {
@@ -32,6 +38,7 @@ fn file_persister_eq() -> postit::Result<()> {
 }
 
 #[test]
+#[cfg(feature = "mongo")]
 fn db_persister_eq() -> postit::Result<()> {
     let mock = MockConn::create(Protocol::Mongo)?;
 

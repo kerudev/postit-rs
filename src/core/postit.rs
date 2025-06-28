@@ -5,6 +5,7 @@
 
 #![allow(clippy::single_call_fn)]
 
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
 use crate::db::Orm;
 use crate::fs::File;
 use crate::traits::Persister;
@@ -72,13 +73,12 @@ impl Postit {
             None => Config::load()?.persister,
         };
 
-        let persister = if path_or_conn.contains("://") || Orm::is_sqlite(&path_or_conn) {
-            Orm::from(path_or_conn)?.boxed()
-        } else {
-            File::from(path_or_conn)?.boxed()
-        };
+        #[cfg(any(feature = "mongo", feature = "sqlite"))]
+        if path_or_conn.contains("://") || Orm::is_sqlite(&path_or_conn) {
+            return Ok(Orm::from(path_or_conn)?.boxed());
+        }
 
-        Ok(persister)
+        Ok(File::from(path_or_conn)?.boxed())
     }
 
     /// Shows use cases for every other command.

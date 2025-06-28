@@ -5,10 +5,19 @@ use std::path::{Path, PathBuf};
 use std::{env, fmt, fs};
 
 use postit::config::Config;
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
 use postit::db::{Orm, Protocol};
-use postit::fs::{Csv, File, Format, Json, Xml};
+
+#[cfg(feature = "json")]
+use postit::fs::Json;
+#[cfg(feature = "xml")]
+use postit::fs::Xml;
+use postit::fs::{Csv, File, Format};
 use postit::models::Todo;
-use postit::traits::{DbPersister, FilePersister};
+
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
+use postit::traits::DbPersister;
+use postit::traits::FilePersister;
 
 pub struct MockEnvVar {
     vars: HashMap<String, Option<String>>,
@@ -101,9 +110,13 @@ impl MockPath {
         let name = path.to_str().unwrap();
 
         let file = match format {
-            Format::Csv => Self::csv(name),
+            #[cfg(feature = "json")]
             Format::Json => Self::json(name),
+
+            #[cfg(feature = "xml")]
             Format::Xml => Self::xml(name),
+
+            _ => Self::csv(name),
         };
 
         let path = file.path().to_path_buf();
@@ -142,10 +155,12 @@ impl MockPath {
         Csv::new(format!("{name}.csv")).boxed()
     }
 
+    #[cfg(feature = "json")]
     pub fn json(name: &str) -> Box<dyn FilePersister> {
         Json::new(format!("{name}.json")).boxed()
     }
 
+    #[cfg(feature = "xml")]
     pub fn xml(name: &str) -> Box<dyn FilePersister> {
         Xml::new(format!("{name}.xml")).boxed()
     }
@@ -173,11 +188,13 @@ impl Drop for MockPath {
 ///
 /// Implements the `Drop` and `Clone` traits
 /// to delete the temporary connection string when the test ends.
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
 pub struct MockConn {
     pub instance: Box<dyn DbPersister>,
     _env: MockEnvVar,
 }
 
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
 impl MockConn {
     /// Constructor of the `MockPath` struct.
     pub fn new(conn: &str) -> postit::Result<Self> {
@@ -221,6 +238,7 @@ impl MockConn {
     }
 }
 
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
 impl Drop for MockConn {
     fn drop(&mut self) {
         if Orm::is_sqlite(&self.instance.conn()) {

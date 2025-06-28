@@ -17,6 +17,7 @@ pub enum Error {
     Fs(#[from] crate::fs::Error),
 
     /// Used for database related [errors][`crate::fs::Error`].
+    #[cfg(any(feature = "mongo", feature = "sqlite"))]
     #[error("{0}")]
     Db(#[from] crate::db::Error),
 

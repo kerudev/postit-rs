@@ -7,7 +7,10 @@ use std::path::PathBuf;
 use crate::models::{Task, Todo};
 use crate::Action;
 
-use super::{db, fs};
+use super::fs;
+
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
+use super::db;
 
 /// The `Persister` trait serves as a base for structures that store instances
 /// of other structs that contain either the [`FilePersister`] trait or the
@@ -138,6 +141,7 @@ impl PartialEq for Box<dyn FilePersister> {
 }
 
 /// Includes basic methods for data management in a database.
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
 pub trait DbPersister: Debug {
     /// Returns the database instance inside a [`Box`] pointer.
     fn boxed(self) -> Box<dyn DbPersister>;
@@ -212,6 +216,7 @@ pub trait DbPersister: Debug {
     fn clean(&self) -> db::Result<()>;
 }
 
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
 impl PartialEq for Box<dyn DbPersister> {
     #[inline]
     fn eq(&self, other: &Self) -> bool {
