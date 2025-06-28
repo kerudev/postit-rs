@@ -3,13 +3,17 @@ use std::path::PathBuf;
 
 use postit::cli::{arguments as args, subcommands as sub};
 use postit::config::Config;
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
 use postit::db::Protocol;
 use postit::fs::{File, Format};
 use postit::models::{Priority, Task, Todo};
 use postit::traits::Persister;
 use postit::{Cli, Command, Postit};
 
-use crate::mocks::{MockConfig, MockConn, MockPath};
+use crate::mocks::{MockConfig, MockPath};
+
+#[cfg(any(feature = "mongo", feature = "sqlite"))]
+use crate::mocks::MockConn;
 
 fn fakes(mock: &MockPath) -> postit::Result<(Box<dyn Persister>, Todo)> {
     let persister = Postit::get_persister(Some(mock.to_string()))?;
@@ -38,6 +42,7 @@ fn get_persister_file() -> postit::Result<()> {
 }
 
 #[test]
+#[cfg(feature = "mongo")]
 fn get_persister_db() -> postit::Result<()> {
     let mock = MockConn::create(Protocol::Mongo)?;
     let persister = Postit::get_persister(Some(mock.conn()))?;
@@ -377,7 +382,7 @@ fn copy_from_ok() -> postit::Result<()> {
     let mut mock_config = MockConfig::new()?;
     mock_config.save()?;
 
-    let right_path = Config::build_path("tasks.json")?;
+    let right_path = Config::build_path("test.csv")?;
     let mock_right = MockPath::from(&right_path)?;
     mock_right.instance.write(&Todo::sample())?;
 
@@ -428,7 +433,7 @@ fn copy_to_ok() -> postit::Result<()> {
     let mock_left = MockPath::from(&left_path)?;
     mock_left.instance.write(&Todo::sample())?;
 
-    let left_right = Config::build_path("tasks.json")?;
+    let left_right = Config::build_path("test.csv")?;
 
     let cli = Cli {
         command: Command::Copy(args::Copy {
@@ -487,7 +492,8 @@ fn copy_same_paths() -> postit::Result<()> {
 }
 
 #[test]
-fn copy_no_left_path() -> postit::Result<()> {
+#[cfg(feature = "json")]
+fn copy_left_path_doesnt_exist_csv_to_json() -> postit::Result<()> {
     let left = MockPath::create(Format::Csv)?;
     let right = MockPath::create(Format::Json)?;
 
@@ -506,6 +512,7 @@ fn copy_no_left_path() -> postit::Result<()> {
 }
 
 #[test]
+#[cfg(feature = "json")]
 fn copy_path_exists() -> postit::Result<()> {
     let mut mock = MockConfig::new()?;
     mock.config.force_copy = false;
@@ -527,6 +534,7 @@ fn copy_path_exists() -> postit::Result<()> {
 }
 
 #[test]
+#[cfg(feature = "json")]
 fn copy_drop_after_copy() -> postit::Result<()> {
     let mut mock = MockConfig::new()?;
     mock.config.force_copy = true;

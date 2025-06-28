@@ -11,6 +11,19 @@ keywords = ["cli", "productivity", "todo-list"]
 categories = ["command-line-utilities"]
 readme = "README.md"
 
+[features]
+default = []
+
+json = ["serde_json"]
+xml = ["quick-xml"]
+
+sqlite = ["dep:sqlite"]
+mongo = ["mongodb"]
+
+all-fs = ["json", "xml"]
+all-db = ["mongo", "sqlite"]
+all = ["default", "all-fs", "all-db"]
+
 [dependencies]
 colored = "2.1.0"
 clap = { version = "4.5", default-features = false, features = [
@@ -22,13 +35,13 @@ clap = { version = "4.5", default-features = false, features = [
 	"suggestions",
 ] }
 dirs = "6.0.0"
-serde = { version = "1.0.217", features = ["derive"] }
-serde_json = "1.0.135"
-toml = "0.8.19"
-quick-xml = { version = "0.37.2", features = ["serialize"] }
-sqlite = "0.36.1"
-mongodb = { version = "3.2.3", features = ["sync"] }
 thiserror = "2.0.12"
+toml = "0.8.19"
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = { version = "1.0.135", optional = true }
+quick-xml = { version = "0.37.2", features = ["serialize"], optional = true }
+sqlite = { version = "0.36.1", optional = true }
+mongodb = { version = "3.2.3", features = ["sync"], optional = true }
 
 [dev-dependencies]
 assert_cmd = "2.0.16"

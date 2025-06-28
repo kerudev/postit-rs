@@ -7,7 +7,11 @@ use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 use std::{fmt, fs};
 
-use super::{error, Csv, Json, Xml};
+#[cfg(feature = "json")]
+use super::Json;
+#[cfg(feature = "xml")]
+use super::Xml;
+use super::{error, Csv};
 use crate::config::Config;
 use crate::models::{Task, Todo};
 use crate::traits::{FilePersister, Persister};
@@ -19,8 +23,10 @@ pub enum Format {
     /// A CSV file (associated persister: [`Csv`]).
     Csv,
     /// A JSON file (associated persister: [`Json`]).
+    #[cfg(feature = "json")]
     Json,
     /// An XML file (associated persister: [`Xml`]).
+    #[cfg(feature = "xml")]
     Xml,
 }
 
@@ -29,8 +35,10 @@ impl<T: AsRef<str>> From<T> for Format {
     #[inline]
     fn from(s: T) -> Self {
         match s.as_ref().to_lowercase().trim() {
-            "json" => Self::Json,
             "csv" => Self::Csv,
+            #[cfg(feature = "json")]
+            "json" => Self::Json,
+            #[cfg(feature = "xml")]
             "xml" => Self::Xml,
             _ => {
                 eprintln!("{}", error::Error::UnsupportedFormat);
@@ -46,7 +54,9 @@ impl Format {
     pub const fn to_str(&self) -> &str {
         match *self {
             Self::Csv => "csv",
+            #[cfg(feature = "json")]
             Self::Json => "json",
+            #[cfg(feature = "xml")]
             Self::Xml => "xml",
         }
     }
@@ -174,9 +184,14 @@ impl File {
         file_path.set_extension(format.to_str());
 
         let file = match format {
-            Format::Csv => Csv::new(file_path).boxed(),
+            // Format::Csv => Csv::new(file_path).boxed(),
+            #[cfg(feature = "json")]
             Format::Json => Json::new(file_path).boxed(),
+
+            #[cfg(feature = "xml")]
             Format::Xml => Xml::new(file_path).boxed(),
+
+            _ => Csv::new(file_path).boxed(),
         };
 
         Ok(file)

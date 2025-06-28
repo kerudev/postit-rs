@@ -6,7 +6,10 @@
 use std::fmt;
 use std::path::Path;
 
-use super::{Mongo, Sqlite};
+#[cfg(feature = "mongo")]
+use super::Mongo;
+#[cfg(feature = "sqlite")]
+use super::Sqlite;
 use crate::db;
 use crate::models::{Task, Todo};
 use crate::traits::{DbPersister, Persister};
@@ -18,8 +21,10 @@ pub enum Protocol {
     /// An `SQLite` database (associated persister: [`Sqlite`]).
     Sqlite,
     /// A `MongoDB` database (associated persister: [`Mongo`]).
+    #[cfg(feature = "mongo")]
     Mongo,
     /// A `MongoDB` database on a remote server (associated persister: [`Mongo`]).
+    #[cfg(feature = "mongo")]
     MongoSrv,
 }
 
@@ -117,6 +122,7 @@ impl Orm {
     pub fn get_persister<T: AsRef<str>>(conn: T) -> crate::Result<Box<dyn DbPersister>> {
         let conn = conn.as_ref();
 
+        #[cfg(feature = "sqlite")]
         if Self::is_sqlite(conn) {
             return Ok(Sqlite::from(conn.replace("sqlite:///", ""))?.boxed());
         }
@@ -130,7 +136,10 @@ impl Orm {
         let protocol = parts[0];
 
         match Protocol::from(protocol) {
+            #[cfg(feature = "mongo")]
             Protocol::Mongo | Protocol::MongoSrv => Ok(Mongo::from(conn)?.boxed()),
+
+            #[cfg(feature = "sqlite")]
             Protocol::Sqlite => Ok(Sqlite::from("tasks.db")?.boxed()),
         }
     }

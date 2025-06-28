@@ -25,10 +25,12 @@ pub enum Error {
     Io(#[from] std::io::Error),
 
     /// Used for JSON serde errors ([`serde_json::Error`]).
+    #[cfg(feature = "json")]
     #[error("{0}")]
     Json(#[from] serde_json::Error),
 
     /// Used for JSON serde errors ([`quick_xml::Error`]).
+    #[cfg(feature = "xml")]
     #[error("{0}")]
     Xml(#[from] quick_xml::Error),
 
