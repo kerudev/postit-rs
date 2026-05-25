@@ -8,6 +8,72 @@ use serde::{Deserialize, Serialize};
 
 use crate::cli::{arguments as args, subcommands as sub};
 
+use std::ffi::OsString;
+
+use thiserror::Error;
+
+/// Convenience type for configuration related operations.
+pub type Result<T> = std::result::Result<T, self::Error>;
+
+/// Error enum for configuration related operations.
+#[derive(Error, Debug)]
+pub enum Error {
+    /// Used when the 'config set' command is used but no flags are passed.
+    #[error("You must provide arguments to set (e.g.: --persister tasks.json)")]
+    EmptySetArgs,
+
+    /// Used for [env errors][`std::env::VarError`].
+    #[error("{0}")]
+    Env(#[from] std::env::VarError),
+
+    /// Used when the `POSTIT_ROOT` has a blank value.
+    #[error("The 'POSTIT_ROOT' environment variable is empty")]
+    EmptyEnvVar,
+
+    /// Used when the value of `POSTIT_ROOT` is not a valid path.
+    #[error("The value of 'POSTIT_ROOT' is not a valid path or is a relative path: {0}")]
+    InvalidPathEnvVar(PathBuf),
+
+    /// Used when the `POSTIT_ROOT`
+    #[error("The value of 'POSTIT_ROOT' is not unicode: {0:?}")]
+    NotUnicodeEnv(OsString),
+
+    /// Used for [I/O errors][`std::io::Error`].
+    #[error("{0}")]
+    Io(#[from] std::io::Error),
+
+    /// Used when the configuration file doesn't exist when it was expected to.
+    #[error("The configuration file doesn't exist at '{0}'")]
+    FileDoesntExist(PathBuf),
+
+    /// Used when the configuration file already exists when it wasn't expected to.
+    #[error("The configuration file already exists at '{0}'")]
+    FileAlreadyExists(PathBuf),
+
+    /// Used when there is an error serializing a TOML structure ([`toml::ser::Error`]).
+    #[error("Failed to serialize config to TOML: {0}")]
+    TOMLSerialize(#[from] toml::ser::Error),
+
+    /// Used when there is an error deserializing a TOML structure ([`toml::de::Error`]).
+    #[error("Failed to deserialize TOML to config: {0}")]
+    TOMLDeserialize(#[from] toml::de::Error),
+
+    /// Any error that doesn't belong into the previous variants.
+    #[error("{0}")]
+    Other(#[from] Box<dyn std::error::Error + Send + Sync>),
+}
+
+impl Error {
+    /// Wraps any error-like value into [`Error::Other`].
+    #[inline]
+    pub fn wrap<E>(err: E) -> Self
+    where
+        E: Into<Box<dyn std::error::Error + Send + Sync>>,
+    {
+        Self::Other(err.into())
+    }
+}
+
 /// Contains the configuration used while running `postit`.
 ///
 /// If the configuration file doesn't exist, it uses the default values defined
@@ -53,7 +119,7 @@ impl Config {
     /// # Errors
     /// - Any error while doing operations on a the configuration file.
     #[inline]
-    pub fn manage(subcommand: sub::Config) -> super::Result<()> {
+    pub fn manage(subcommand: sub::Config) -> Result<()> {
         match subcommand {
             sub::Config::Env => Self::print_env(),
             sub::Config::Path => Self::print_path(),
@@ -70,11 +136,11 @@ impl Config {
     /// - The path can't be obtained.
     /// - The config file already exists at the used path.
     #[inline]
-    pub fn init() -> super::Result<()> {
+    pub fn init() -> Result<()> {
         let path = Self::path()?;
 
         if path.exists() {
-            return Err(super::Error::FileAlreadyExists(path));
+            return Err(Error::FileAlreadyExists(path));
         }
 
         if let Some(parent) = path.parent() {
@@ -86,7 +152,7 @@ impl Config {
 
         file.write_all(toml.as_bytes()).map_err(|e| {
             eprintln!("Failed to write default config to file");
-            super::Error::Io(e)
+            Error::Io(e)
         })?;
 
         println!("Configuration file created at '{}'", path.display());
@@ -99,11 +165,11 @@ impl Config {
     /// # Errors
     /// - The `POSTIT_ROOT` exists but is empty.
     #[inline]
-    pub fn print_env() -> super::Result<()> {
+    pub fn print_env() -> Result<()> {
         let env = Self::env().unwrap_or_default();
 
         if env.is_empty() {
-            return Err(super::Error::EmptyEnvVar);
+            return Err(Error::EmptyEnvVar);
         }
 
         println!("{env}");
@@ -117,7 +183,7 @@ impl Config {
     /// - The file doesn't exist at the parent path.
     /// - The path can't be obtained from the `POSTIT_ROOT` env var.
     #[inline]
-    pub fn print_path() -> super::Result<()> {
+    pub fn print_path() -> Result<()> {
         Self::_check_path_exists()?;
 
         let path = Self::path()?;
@@ -136,17 +202,17 @@ impl Config {
     /// # Panics
     /// - The parent can't be obtained from the path.
     #[inline]
-    pub fn remove() -> super::Result<()> {
+    pub fn remove() -> Result<()> {
         let path = Self::path()?;
 
         if !path.exists() {
             let parent = path.parent().unwrap().to_path_buf();
-            return Err(super::Error::FileDoesntExist(parent));
+            return Err(Error::FileDoesntExist(parent));
         }
 
         fs::remove_file(&path).map_err(|e| {
             eprintln!("Config file couldn't be deleted.");
-            super::Error::Io(e)
+            Error::Io(e)
         })?;
 
         println!("Config file removed from '{}'", path.parent().unwrap().display());
@@ -160,7 +226,7 @@ impl Config {
     /// - The file doesn't exist at the parent path (displays default config too).
     /// - The configuration can't be loaded.
     #[inline]
-    pub fn list() -> super::Result<()> {
+    pub fn list() -> Result<()> {
         let result = Self::_check_path_exists();
 
         if let Err(e) = result {
@@ -183,7 +249,7 @@ impl Config {
     /// - There are no values provided.
     /// - The configuration can't be loaded.
     #[inline]
-    pub fn set(args: args::ConfigSet) -> super::Result<()> {
+    pub fn set(args: args::ConfigSet) -> Result<()> {
         Self::_check_path_exists()?;
 
         if args.persister.is_none()
@@ -191,7 +257,7 @@ impl Config {
             && args.force_copy.is_none()
             && args.drop_after_copy.is_none()
         {
-            return Err(super::Error::EmptySetArgs);
+            return Err(Error::EmptySetArgs);
         }
 
         let mut config = Self::load()?;
@@ -230,8 +296,8 @@ impl Config {
     /// # Errors
     /// - The `POSTIT_ROOT` env var is not present or has not unicode characters.
     #[inline]
-    pub fn env() -> super::Result<String> {
-        env::var("POSTIT_ROOT").map_err(super::Error::Env)
+    pub fn env() -> Result<String> {
+        env::var("POSTIT_ROOT").map_err(Error::Env)
     }
 
     /// Returns the name of the config file.
@@ -248,23 +314,23 @@ impl Config {
     /// - The value of `POSTIT_ROOT` contains not unicode characters.
     /// - The path from `POSTIT_ROOT` is relative.
     #[inline]
-    pub fn path_from_env() -> super::Result<PathBuf> {
+    pub fn path_from_env() -> Result<PathBuf> {
         let env = Self::env();
 
         let path = match env {
-            Ok(v) if v.is_empty() => Err(super::Error::EmptyEnvVar),
+            Ok(v) if v.is_empty() => Err(Error::EmptyEnvVar),
             Ok(v) => Ok(PathBuf::from(v)),
 
-            Err(super::Error::Env(e)) => match e {
+            Err(Error::Env(e)) => match e {
                 env::VarError::NotPresent => Ok(Self::default_config_parent()),
-                env::VarError::NotUnicode(msg) => Err(super::Error::NotUnicode(msg)),
+                env::VarError::NotUnicode(msg) => Err(Error::NotUnicodeEnv(msg)),
             },
 
             Err(_) => unreachable!(),
         }?;
 
         if path.is_relative() {
-            return Err(super::Error::InvalidPathEnvVar(path));
+            return Err(Error::InvalidPathEnvVar(path));
         }
 
         Ok(path)
@@ -291,7 +357,7 @@ impl Config {
     /// # Errors
     /// - The path can't be obtained from the `POSTIT_ROOT` env var.
     #[inline]
-    pub fn path() -> super::Result<PathBuf> {
+    pub fn path() -> Result<PathBuf> {
         Ok(Self::path_from_env()?.join(Self::config_file_name()))
     }
 
@@ -303,12 +369,12 @@ impl Config {
     /// # Panics
     /// - The parent can't be obtained from the path.
     #[inline]
-    pub fn _check_path_exists() -> super::Result<()> {
+    pub fn _check_path_exists() -> Result<()> {
         let path = Self::path()?;
 
         if !path.exists() {
             let parent = path.parent().unwrap().to_path_buf();
-            return Err(super::Error::FileDoesntExist(parent));
+            return Err(Error::FileDoesntExist(parent));
         }
 
         Ok(())
@@ -323,7 +389,7 @@ impl Config {
     /// # Panics
     /// - The parent path can't be extracted from the configuration path.
     #[inline]
-    pub fn get_parent_path() -> super::Result<PathBuf> {
+    pub fn get_parent_path() -> Result<PathBuf> {
         Ok(Self::path()?.parent().unwrap().to_path_buf())
     }
 
@@ -337,7 +403,7 @@ impl Config {
     /// - If the path can't be converted to str.
     /// - If the parent path can't be converted to str.
     #[inline]
-    pub fn build_path<T: AsRef<Path>>(path: T) -> super::Result<PathBuf> {
+    pub fn build_path<T: AsRef<Path>>(path: T) -> Result<PathBuf> {
         let path = path.as_ref();
 
         let parent = Self::get_parent_path()?;
@@ -355,7 +421,7 @@ impl Config {
     /// - The config file can't be loaded.
     /// - The config file can't be read.
     #[inline]
-    pub fn load() -> super::Result<Self> {
+    pub fn load() -> Result<Self> {
         let path = Self::path()?;
 
         if !path.exists() {
@@ -364,7 +430,7 @@ impl Config {
 
         let content = fs::read_to_string(path).map_err(|e| {
             eprintln!("Failed to read config file");
-            super::Error::Io(e)
+            Error::Io(e)
         })?;
 
         let config = toml::from_str(&content)?;
@@ -380,19 +446,19 @@ impl Config {
     /// - The config can't be formatted to TOML.
     /// - The config file can't be saved.
     #[inline]
-    pub fn save(&self) -> super::Result<()> {
+    pub fn save(&self) -> Result<()> {
         let path = Self::path()?;
 
         let mut file = fs::File::create(&path).map_err(|e| {
             eprintln!("Failed to open the config file {}: {e}", path.display());
-            super::Error::Io(e)
+            Error::Io(e)
         })?;
 
         let toml = toml::to_string_pretty(self)?;
 
         file.write_all(toml.as_bytes()).map_err(|e| {
             eprintln!("Failed to save config to file: {e}");
-            super::Error::Io(e)
+            Error::Io(e)
         })?;
 
         println!("Configuration saved");

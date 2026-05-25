@@ -319,7 +319,7 @@ fn path_from_env_err_not_unicode() {
 
     let err = Config::path_from_env().unwrap_err();
 
-    assert!(matches!(err, postit::config::Error::NotUnicode(_)));
+    assert!(matches!(err, postit::config::Error::NotUnicodeEnv(_)));
 }
 
 #[test]
