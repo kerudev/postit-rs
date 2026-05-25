@@ -16,7 +16,7 @@ pub enum Error {
     #[error("The provided connection string is incorrect")]
     IncorrectConnectionString,
 
-    /// Represent a `SQLite` error.
+    /// Represent an `SQLite` error.
     #[cfg(feature = "sqlite")]
     #[error("Error on SQLite: {0}")]
     Sqlite(#[from] sqlite::Error),

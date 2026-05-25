@@ -1,9 +1,9 @@
-//! Module for file management.
+//! Contains the File and handlers for the supported databases.
 //!
 //! The currently supported formats are:
-//! - csv
-//! - json
-//! - xml
+//! - [csv][`Csv`]
+//! - [json][`Json`]
+//! - [xml][`Xml`]
 
 mod csv;
 mod error;

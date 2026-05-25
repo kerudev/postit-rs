@@ -86,7 +86,7 @@ impl fmt::Display for Priority {
     }
 }
 
-/// Representation of a Task.
+/// Representation of a `Task`.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]

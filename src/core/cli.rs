@@ -162,33 +162,32 @@ pub mod subcommands {
         Remove,
     }
 
-
     /// Subcommands for the 'Docs' command
     #[derive(Subcommand, Debug)]
     pub enum Docs {
-        /// Documentation of the 'config' command
+        /// Command > config    (alias: conf)
         Config,
-        /// Documentation of the 'view' command
+        /// Command > view      (alias: v)
         View,
-        /// Documentation of the 'add' command
+        /// Command > add       (alias: a)
         Add,
-        /// Documentation of the 'set' command
+        /// Command > set       (alias: s)
         Set,
-        /// Documentation of the 'check' command
+        /// Command > check     (alias: c)
         Check,
-        /// Documentation of the 'uncheck' command
+        /// Command > uncheck   (alias: uc)
         Uncheck,
-        /// Documentation of the 'drop' command
+        /// Command > drop      (alias: d)
         Drop,
-        /// Documentation of the 'copy' command
+        /// Command > copy      (alias: cp)
         Copy,
-        /// Documentation of the 'clean' command
+        /// Command > clean     (alias: cl)
         Clean,
-        /// Documentation of the 'remove' command
+        /// Command > remove    (alias: rm)
         Remove,
-        /// Documentation of the 'sample' command
+        /// Command > sample    (alias: sa)
         Sample,
-        /// Documentation of the 'persister' flag
+        /// Flag    > persister
         Persister,
     }
 }
@@ -196,51 +195,51 @@ pub mod subcommands {
 /// Contains the different commands available.
 #[derive(Subcommand, Debug)]
 pub enum Command {
-    /// Manages the configuration file.
+    /// Manages the configuration file                  (alias: conf)
     #[command(alias = "conf")]
     Config(args::Config),
 
-    /// Shows a list of the current tasks.
+    /// Shows a list of the current tasks               (alias: v)
     #[command(alias = "v")]
     View(args::Persister),
 
-    /// Adds a new task to the list.
+    /// Adds a new task to the list                     (alias: a)
     #[command(alias = "a")]
     Add(args::Add),
 
-    /// Changes values inside of tasks.
+    /// Changes values inside of tasks                  (alias: s)
     #[command(alias = "s")]
     Set(args::Set),
 
-    /// Marks a task as checked.
+    /// Marks a task as checked                         (alias: c)
     #[command(alias = "c")]
     Check(args::Edit),
 
-    /// Marks a task as unchecked.
+    /// Marks a task as unchecked                       (alias: uc)
     #[command(alias = "uc")]
     Uncheck(args::Edit),
 
-    /// Deletes a task from the list.
+    /// Deletes a task from the list                    (alias: d)
     #[command(alias = "d")]
     Drop(args::Edit),
 
-    /// Creates a copy of a file (can parse formats, like csv to json).
+    /// Copies tasks to other files or formats          (alias: cp)
     #[command(alias = "cp")]
     Copy(args::Copy),
 
-    /// Cleans the tasks from a persister
+    /// Cleans tasks from a persister                   (alias: cl)
     #[command(alias = "cl")]
     Clean(args::Persister),
 
-    /// Removes a persister completely (file or table)
+    /// Removes a persister (file or table) completely  (alias: rm)
     #[command(alias = "rm")]
     Remove(args::Persister),
 
-    /// Creates a sample of tasks. Useful to test postit's features.
+    /// Creates a sample of tasks for testing purposes  (alias: sa)
     #[command(alias = "sa")]
     Sample(args::Persister),
 
-    /// Provides documentation and use examples for commands
+    /// Documentation and use examples                  (alias: man)
     #[command(alias = "man")]
     Docs(args::Docs),
 }

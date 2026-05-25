@@ -12,9 +12,8 @@ use super::fs;
 #[cfg(any(feature = "mongo", feature = "sqlite"))]
 use super::db;
 
-/// The `Persister` trait serves as a base for structures that store instances
-/// of other structs that contain either the [`FilePersister`] trait or the
-/// [`DbPersister`] trait.
+/// Serves as a base for structures that store instances of structs that contain
+/// either the [`FilePersister`] trait or the [`DbPersister`] trait.
 pub trait Persister: fmt::Debug {
     /// Returns the persister instance inside a [`Box`] pointer.
     fn boxed(self) -> Box<dyn Persister>;
@@ -91,7 +90,7 @@ impl Clone for Box<dyn Persister> {
     }
 }
 
-/// Includes basic methods for data management in a file.
+/// Interface for data management in a file.
 pub trait FilePersister: Debug {
     /// Returns the file instance inside a [`Box`] pointer.
     fn boxed(self) -> Box<dyn FilePersister>;
@@ -99,7 +98,7 @@ pub trait FilePersister: Debug {
     /// Returns the file's path.
     fn path(&self) -> &PathBuf;
 
-    /// Returns a String used to initialize the file.
+    /// Returns the default value used to initialize the file.
     fn default(&self) -> String;
 
     /// Returns the tasks collected from the file's contents.
@@ -140,7 +139,7 @@ impl PartialEq for Box<dyn FilePersister> {
     }
 }
 
-/// Includes basic methods for data management in a database.
+/// Interface for data management in a database.
 #[cfg(any(feature = "mongo", feature = "sqlite"))]
 pub trait DbPersister: Debug {
     /// Returns the database instance inside a [`Box`] pointer.

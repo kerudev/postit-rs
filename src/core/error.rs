@@ -5,7 +5,7 @@ use thiserror::Error;
 /// Convenience type for database related operations.
 pub type Result<T> = std::result::Result<T, self::Error>;
 
-/// Errors related to file and path management.
+/// Global error handler.
 #[derive(Error, Debug)]
 pub enum Error {
     /// Used for config related [errors][`crate::config::Error`].
