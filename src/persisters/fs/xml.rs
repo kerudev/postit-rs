@@ -13,10 +13,10 @@ use quick_xml::{Reader, Writer};
 use crate::models::{Priority, Task, Todo};
 use crate::traits::FilePersister;
 
-/// Representation of a Xml file.
+/// Representation of an XML file.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Xml {
-    /// Location of the Xml file.
+    /// Location of the XML file.
     path: PathBuf,
 }
 
