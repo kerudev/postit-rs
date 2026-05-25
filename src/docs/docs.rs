@@ -1,16 +1,16 @@
-//! Contains documentations for use every command, including their usage, aliases,
-//! a description and a use example to showcase the command's functionalities.
+//! Contains documentations for use every command and flag, including their
+//! aliases, a description and a use example.
 
 #![allow(clippy::single_call_fn)]
 
 use crate::cli::subcommands as sub;
 use crate::models::{Priority, Task, Todo};
 
-/// Contains use cases for every command.
+/// Contains use cases for every command and flag.
 #[non_exhaustive]
-pub struct Command;
+pub struct Docs;
 
-impl Command {
+impl Docs {
     /// Uses the [`sub::Docs`] value passed to show its corresponding example.
     #[inline]
     pub fn run(cmnd: &sub::Docs) {
@@ -26,6 +26,7 @@ impl Command {
             sub::Docs::Copy => Self::copy(),
             sub::Docs::Clean => Self::clean(),
             sub::Docs::Remove => Self::remove(),
+            sub::Docs::Persister => Self::persister(),
         }
     }
 
@@ -447,6 +448,44 @@ Config values:
       If 'true', drops a persister (file or table) after copying.
     
 You can also check https://docs.rs/postit/latest/postit/struct.Config.html for more info."
+        );
+    }
+
+    /// Use case of the 'persister' flag.
+    #[inline]
+    pub fn persister() {
+        println!(
+            "
+Usage: postit <COMMAND> [--persister | -p] <PATH_OR_CONN>
+
+Description:
+    Specifies the persister where the tasks will be read from and saved to.
+
+    It can be a file (CSV, JSON, etc.) or a database (SQLite, etc.). The persister
+    is defined in '.postit.toml', or you can override it with the `-p` flag.
+
+    There are currently 4 supported persisters:
+
+    - Files
+      - csv             (e.g.: tasks.csv)
+      - json            (e.g.: tasks.json)
+      - xml             (e.g.: tasks.xml)
+
+    - Databases
+      - SQLite          (e.g.: tasks.db, tasks.sqlite or tasks.sqlite3)
+      - MongoDB         (e.g.: mongodb://user:pass@host:port)
+      - MongoDB Atlas   (e.g.: mongodb+srv://user:pass@cluster)
+
+How to use:
+    postit view --persister tasks.csv
+
+    postit view --persister tasks.db
+
+    postit view --persister mongodb://localhost:27017
+    
+    postit view --persister mongodb+srv://my_user:my_pass@cluster.mongodb.net
+    
+    ..."
         );
     }
 }

@@ -9,18 +9,18 @@
 use crate::db::Orm;
 use crate::fs::File;
 use crate::traits::Persister;
+use crate::Docs;
 
 use super::cli::{arguments as args, subcommands as sub};
 use super::{Action, Cli, Command};
 use crate::config::Config;
-use crate::docs;
 use crate::models::{Task, Todo};
 
 /// Entry point where all operations are executed.
 ///
 /// Handles operations via commands.
 ///
-/// The [`Todo`] instance is loaded using the desired [`FilePersister`][`super::traits::FilePersister`]
+/// The [`Todo`] instance is loaded using the desired [`FilePersister`][`crate::traits::FilePersister`]
 /// instance, which is modified when the `Postit` finishes working.
 #[non_exhaustive]
 pub struct Postit;
@@ -35,10 +35,6 @@ impl Postit {
         match cli.command {
             Command::Docs(args) => {
                 Self::docs(&args);
-                Ok(())
-            }
-            Command::Flag(args) => {
-                Self::flag(&args);
                 Ok(())
             }
             Command::Config(args) => Self::config(args),
@@ -83,12 +79,7 @@ impl Postit {
 
     /// Shows use cases for every other command.
     fn docs(args: &args::Docs) {
-        docs::Command::run(&args.subcommand);
-    }
-
-    /// Shows use cases for commonly used flags.
-    fn flag(args: &args::Flag) {
-        docs::Flag::run(&args.subcommand);
+        Docs::run(&args.subcommand);
     }
 
     /// Shows the list of current tasks.

@@ -23,10 +23,12 @@
     clippy::expect_used,
 )]
 
-mod core;
 pub mod models;
+
+mod core;
+mod docs;
 mod persisters;
 
 pub use core::*;
-
+pub use docs::Docs;
 pub use persisters::*;
