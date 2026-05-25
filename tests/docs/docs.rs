@@ -1,8 +1,8 @@
-use std::process::Output;
+use postit::cli::subcommands as sub;
 
 use assert_cmd::Command;
-use postit::cli::subcommands as sub;
-use postit::docs;
+use postit::Docs;
+use std::process::Output;
 
 fn get_docs_output(command: &str) -> Output {
     Command::cargo_bin("postit")
@@ -24,7 +24,7 @@ fn docs_sample_output() {
 
 #[test]
 fn docs_sample_no_panic() {
-    docs::Command::run(&sub::Docs::Sample)
+    Docs::run(&sub::Docs::Sample);
 }
 
 #[test]
@@ -39,15 +39,13 @@ fn docs_view_output() {
 
 #[test]
 fn docs_view_no_panic() {
-    docs::Command::run(&sub::Docs::View)
+    Docs::run(&sub::Docs::View);
 }
 
 #[test]
 fn docs_add_output() {
     let output = get_docs_output("add");
     let stdout = String::from_utf8_lossy(&output.stdout);
-
-    dbg!(&output);
 
     assert!(output.status.success());
     assert!(stdout.contains("Usage: postit add <PRIORITY> <CONTENT> [--persister|-p]"));
@@ -56,7 +54,7 @@ fn docs_add_output() {
 
 #[test]
 fn docs_add_no_panic() {
-    docs::Command::run(&sub::Docs::Add)
+    Docs::run(&sub::Docs::Add);
 }
 
 #[test]
@@ -71,7 +69,7 @@ fn docs_set_output() {
 
 #[test]
 fn docs_set_no_panic() {
-    docs::Command::run(&sub::Docs::Set)
+    Docs::run(&sub::Docs::Set);
 }
 
 #[test]
@@ -86,7 +84,7 @@ fn docs_check_output() {
 
 #[test]
 fn docs_check_no_panic() {
-    docs::Command::run(&sub::Docs::Check)
+    Docs::run(&sub::Docs::Check);
 }
 
 #[test]
@@ -101,7 +99,7 @@ fn docs_uncheck_output() {
 
 #[test]
 fn docs_uncheck_no_panic() {
-    docs::Command::run(&sub::Docs::Uncheck)
+    Docs::run(&sub::Docs::Uncheck);
 }
 
 #[test]
@@ -116,7 +114,7 @@ fn docs_drop_output() {
 
 #[test]
 fn docs_drop_no_panic() {
-    docs::Command::run(&sub::Docs::Drop);
+    Docs::run(&sub::Docs::Drop);
 }
 
 #[test]
@@ -131,7 +129,7 @@ fn docs_copy_output() {
 
 #[test]
 fn docs_copy_no_panic() {
-    docs::Command::run(&sub::Docs::Copy)
+    Docs::run(&sub::Docs::Copy);
 }
 
 #[test]
@@ -146,7 +144,7 @@ fn docs_clean_output() {
 
 #[test]
 fn docs_clean_no_panic() {
-    docs::Command::run(&sub::Docs::Clean)
+    Docs::run(&sub::Docs::Clean);
 }
 
 #[test]
@@ -161,7 +159,7 @@ fn docs_remove_output() {
 
 #[test]
 fn docs_remove_no_panic() {
-    docs::Command::run(&sub::Docs::Remove)
+    Docs::run(&sub::Docs::Remove);
 }
 
 #[test]
@@ -177,5 +175,19 @@ fn docs_config_output() {
 
 #[test]
 fn docs_config_no_panic() {
-    docs::Command::run(&sub::Docs::Config)
+    Docs::run(&sub::Docs::Config);
+}
+
+#[test]
+fn flag_persister_output() {
+    let output = get_docs_output("persister");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    assert!(output.status.success());
+    assert!(stdout.contains("Usage: postit <COMMAND> [--persister | -p] <PATH_OR_CONN>"));
+}
+
+#[test]
+fn flag_persister_no_panic() {
+    Docs::persister();
 }

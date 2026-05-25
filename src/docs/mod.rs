@@ -1,11 +1,8 @@
 //! Contains commands used for documentation purposes.
 //!
-//! Their information can be accessed by using the following commands:
+//! Their information can be accessed by using:
 //! - postit docs <COMMAND>
-//! - postit flag <COMMAND>
 
-mod command;
-mod flag;
+mod docs;
 
-pub use command::Command;
-pub use flag::Flag;
+pub use docs::Docs;

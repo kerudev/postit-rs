@@ -18,14 +18,6 @@ pub mod arguments {
         pub subcommand: sub::Docs,
     }
 
-    /// Arguments of the 'flag' command.
-    #[derive(Args, Debug)]
-    pub struct Flag {
-        /// Subcommand the `Flag` command will use.
-        #[command(subcommand)]
-        pub subcommand: sub::Flag,
-    }
-
     /// Defines a common argument for commands that just use the persister value.
     #[derive(Args, Debug)]
     pub struct Persister {
@@ -170,12 +162,6 @@ pub mod subcommands {
         Remove,
     }
 
-    /// Subcommands for the 'Flag' command
-    #[derive(Subcommand, Debug)]
-    pub enum Flag {
-        /// Documentation of for the 'persister' flag
-        Persister,
-    }
 
     /// Subcommands for the 'Docs' command
     #[derive(Subcommand, Debug)]
@@ -202,6 +188,8 @@ pub mod subcommands {
         Remove,
         /// Documentation of the 'sample' command
         Sample,
+        /// Documentation of the 'persister' flag
+        Persister,
     }
 }
 
@@ -255,10 +243,6 @@ pub enum Command {
     /// Provides documentation and use examples for commands
     #[command(alias = "man")]
     Docs(args::Docs),
-
-    /// Provides documentation and use examples for flags
-    #[command(alias = "f")]
-    Flag(args::Flag),
 }
 
 /// Manages the command and arguments received from console.

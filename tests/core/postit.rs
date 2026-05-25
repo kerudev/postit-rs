@@ -76,15 +76,6 @@ fn docs() {
 }
 
 #[test]
-fn flag() {
-    let cli = Cli {
-        command: Command::Flag(args::Flag { subcommand: sub::Flag::Persister }),
-    };
-
-    assert!(Postit::run(cli).is_ok());
-}
-
-#[test]
 fn view() -> postit::Result<()> {
     let mock = MockPath::create(Format::Csv)?;
 

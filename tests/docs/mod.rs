@@ -1,2 +1,1 @@
-mod command;
-mod flag;
+mod docs;
