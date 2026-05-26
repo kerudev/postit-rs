@@ -28,7 +28,7 @@ pub mod error {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             match *self {
                 Self::AlreadyChecked { id } => write!(f, "Task {id} was already checked"),
-                Self::AlreadyUnchecked { id } => write!(f, "Task {id} was already unchecked",),
+                Self::AlreadyUnchecked { id } => write!(f, "Task {id} was already unchecked"),
             }
         }
     }
@@ -88,8 +88,8 @@ impl fmt::Display for Priority {
 
 /// Representation of a `Task`.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
 #[non_exhaustive]
+#[serde(rename_all = "snake_case")]
 pub struct Task {
     /// Identifier of the task.
     pub id: u32,

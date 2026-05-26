@@ -191,6 +191,7 @@ impl File {
             #[cfg(feature = "xml")]
             Format::Xml => Xml::new(file_path).boxed(),
 
+            // TODO display message when feature is not installed
             _ => Csv::new(file_path).boxed(),
         };
 
