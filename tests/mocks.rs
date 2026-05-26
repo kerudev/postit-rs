@@ -116,6 +116,7 @@ impl MockPath {
             #[cfg(feature = "xml")]
             Format::Xml => Self::xml(name),
 
+            // TODO display message when feature is not installed
             _ => Self::csv(name),
         };
 
@@ -249,7 +250,7 @@ impl Drop for MockConn {
     }
 }
 
-/// The temporary representation of the Config file.
+/// The temporary representation of the [Config][`Config`] file.
 ///
 /// Implements the `Display` and `Drop` traits
 /// to delete the temporary path when the test ends.
