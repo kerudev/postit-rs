@@ -7,6 +7,7 @@ use crate::cli::subcommands as sub;
 use crate::models::{Priority, Task, Todo};
 
 /// Contains use cases for every command and flag.
+#[doc(hidden)]
 #[non_exhaustive]
 pub struct Docs;
 

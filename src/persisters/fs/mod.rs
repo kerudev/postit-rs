@@ -1,4 +1,4 @@
-//! Contains the File and handlers for the supported databases.
+//! Contains the File and handlers for the supported file formats.
 //!
 //! The currently supported formats are:
 //! - [csv][`Csv`]

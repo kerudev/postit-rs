@@ -4,6 +4,7 @@ use arguments as args;
 use clap::{Parser, Subcommand};
 
 /// Contains the arguments struct used.
+#[doc(hidden)]
 pub mod arguments {
     use clap::Args;
 
@@ -128,6 +129,7 @@ pub mod arguments {
 }
 
 /// Contains the subcommands available used by parent commands.
+#[doc(hidden)]
 pub mod subcommands {
     use clap::Subcommand;
 
@@ -204,6 +206,7 @@ pub mod subcommands {
 }
 
 /// Contains the different commands available.
+#[doc(hidden)]
 #[derive(Subcommand, Debug)]
 pub enum Command {
     /// Manages the configuration file                  (alias: conf)
@@ -256,6 +259,7 @@ pub enum Command {
 }
 
 /// Manages the command and arguments received from console.
+#[doc(hidden)]
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None, next_line_help = false)]
 pub struct Cli {
