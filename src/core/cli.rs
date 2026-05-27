@@ -166,26 +166,37 @@ pub mod subcommands {
     #[derive(Subcommand, Debug)]
     pub enum Docs {
         /// Command > config    (alias: conf)
+        #[command(alias = "conf")]
         Config,
         /// Command > view      (alias: v)
+        #[command(alias = "v")]
         View,
         /// Command > add       (alias: a)
+        #[command(alias = "a")]
         Add,
         /// Command > set       (alias: s)
+        #[command(alias = "s")]
         Set,
         /// Command > check     (alias: c)
+        #[command(alias = "c")]
         Check,
         /// Command > uncheck   (alias: uc)
+        #[command(alias = "uc")]
         Uncheck,
         /// Command > drop      (alias: d)
+        #[command(alias = "d")]
         Drop,
         /// Command > copy      (alias: cp)
+        #[command(alias = "cp")]
         Copy,
         /// Command > clean     (alias: cl)
+        #[command(alias = "cl")]
         Clean,
         /// Command > remove    (alias: rm)
+        #[command(alias = "rm")]
         Remove,
         /// Command > sample    (alias: sa)
+        #[command(alias = "sa")]
         Sample,
         /// Flag    > persister
         Persister,
