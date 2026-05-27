@@ -1,5 +1,6 @@
 //! This is where all the task related management happens.
 
+#[doc(hidden)]
 pub mod cli;
 pub mod config;
 mod error;
