@@ -1,5 +1,8 @@
-//! Contains documentations for use every command and flag, including their
-//! aliases, a description and a use example.
+//! Contains commands used for documentation purposes.
+//!
+//! Their information can be accessed by using:
+//! - postit docs <COMMAND>
+
 
 #![allow(clippy::single_call_fn)]
 
