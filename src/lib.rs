@@ -26,8 +26,8 @@
 pub mod models;
 
 mod core;
-mod docs;
 mod persisters;
+mod docs;
 
 pub use core::*;
 pub use docs::Docs;
