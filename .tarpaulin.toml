@@ -1,7 +1,7 @@
 [global]
 exclude-files = [
     "src/main.rs",
-    "src/docs/*"
+    "src/docs.rs"
 ]
 target-dir = "target/tarpaulin"
 run-types = ["Tests"]
