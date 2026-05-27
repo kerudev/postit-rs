@@ -15,53 +15,10 @@ postit is a simple CLI utility aimed to help you manage and keep track of your t
 
 ## Index
 
-Here is an index of this file to make it easier for you to navigate:
-
-- [Getting started](#getting-started): describes installation and first steps.
 - [From 0.1.x to 0.2.x](#from-01x-to-02x): brief migration guide.
+- [Getting started](#getting-started): describes installation and first steps.
 - [Features](#features): postit's functionalities and new additions roadmap. 
 - [Configuration](#configuration): describes configuration options.
-- [Development](#development): things to take into account if you want to contribute to postit.
-
-## Getting started
-
-To install `postit`, just use:
-
-```sh
-cargo install postit
-```
-
-`postit` uses the path stored at the `POSTIT_ROOT` environment variable to
-generate files inside it. If not set, this path will be `$HOME/.postit`.
-
-You can set the `POSTIT_ROOT` environment variable to override the default value:
-
-On Linux:
-
-```sh
-# ~/.bashrc
-
-# Feel free to change this line
-export POSTIT_ROOT="$HOME/.postit"
-```  
-
-On Windows:
-
-```ps1
-[Environment]::SetEnvironmentVariable("POSTIT_ROOT", "$env:USERPROFILE\.postit", "User")
-```
-
-The command below will generate `postit`'s configuration file inside the path
-previously mentioned:
-
-```sh
-postit config init
-```
-
-Here is a list of useful commands to get started:
-- `postit help`: a list of all possible commands.
-- `postit docs`: documentation and use examples for every command.
-- `postit flag`: documentation and use examples for flags.
 
 ## From 0.1.x to 0.2.x
 
@@ -81,17 +38,50 @@ to make task management simpler.
 
 Hope to cross paths in future versions :)
 
+## Getting started
+
+To install `postit`, just run:
+
+```sh
+cargo install postit
+```
+
+By default, `postit` will generate files inside `$HOME/.postit`. You can set a
+path in the `POSTIT_ROOT` environment variable to override the default value.
+
+On Linux:
+
+```sh
+# ~/.bashrc
+
+# Feel free to change this line
+export POSTIT_ROOT="$HOME/.postit"
+```  
+
+On Windows:
+
+```ps1
+# Feel free to change this line
+[Environment]::SetEnvironmentVariable("POSTIT_ROOT", "$env:USERPROFILE\.postit", "User")
+```
+
+Here is a list of other useful commands to get started:
+- `postit help`: a list of all possible commands.
+- `postit docs`: documentation and use examples for every command and flag.
+
 ## Features
 
 Although `postit` is still in early development, it is alive and keeps growing!
-Here are some of its current features and some planned ones as well: 
+Here are some of its current features:
 
-Features:
-- Commands and flags to manage tasks and files.
-- Variety of supported persisters:
-  - File extensions: `csv`, `json`, `xml`.
-  - DB protocols: `sqlite`, `mongodb`, `mongodb+srv`.
-- Configuration file to change postit's behavior (more info in the [Configuration](#configuration) section).
+- `default`: support for `CSV` files (no dependencies).
+- `json`: support for `JSON` files.
+- `xml`: support for `XML` files.
+- `sqlite`: support for `SQLite` databases.
+- `mongo`: support for `MongoDB` and `MongoDB Atlas` databases.
+- `all-fs`: installs all file features (`json`, `xml` and `sqlite`).
+- `all-db`: installs all database features (`sqlite` and `mongo`).
+- `all`: installs everything (`all-fs` and `all-db`).
 
 Roadmap:
 - [x] XML support
@@ -101,30 +91,20 @@ Roadmap:
 
 ## Configuration
 
-postit's behavior can be changed using the `.postit.toml` file.
-
-You can check out its possible fields in the [docs](https://docs.rs/postit/latest/postit/struct.Config.html)
-or by running the documentation command:
+postit's behavior can be changed using the `.postit.toml` file. Check out its
+possible fields in the [docs](https://docs.rs/postit/latest/postit/struct.Config.html)
+or run:
 
 ```sh
 postit docs config
 ```
 
-## Development
+The command below will generate postit's configuration file inside `POSTIT_ROOT`:
 
-### Testing
-
-To run postit's tests, use this command:
 ```sh
-cargo test -- --test-threads=1
+postit config init
 ```
 
-You can also use `tarpaulin`, configured in the `.tarpaulin.toml` file.
-It is slower, but shows line coverage (not branch coverage):
-```sh
-cargo tarpaulin -- --test-threads=1
-```
+## Contributing
 
-The reason why tests are run synchronously is to not overwrite existing files,
-control the execution flow (creation and cleanup of temp files) and keep them
-as lightweight as possible, as they don't use external dependencies.
+Read [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md).
