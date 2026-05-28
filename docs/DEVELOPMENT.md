@@ -22,3 +22,11 @@ as lightweight as possible, as they don't use external dependencies.
 
 If you run the `mongo` test suite, you'll need to have a MongoDB instance
 deployed. This may change in the future, but for now I'm okay with it.
+
+Useful Docker commands:
+
+```sh
+docker run -d --name postit-mongodb -p 27017:27017 mongo:noble  # Create and run container
+docker start postit-mongodb                                     # Run existing container
+docker stop postit-mongodb                                      # Stop existing container
+```
