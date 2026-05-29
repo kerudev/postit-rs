@@ -1,4 +1,4 @@
-use std::ops::Not;
+use std::ops::Not as _;
 use std::path::PathBuf;
 
 use postit::cli::{arguments as args, subcommands as sub};
@@ -59,7 +59,7 @@ fn get_persister_none() -> postit::Result<()> {
     let mut path = Config::get_parent_path()?;
     path.push(Config::load()?.persister);
 
-    assert_eq!(persister.to_string(), path.to_str().unwrap());
+    assert_eq!(persister, path.to_str().unwrap());
 
     MockPath::create(Format::Csv)?;
 
@@ -195,10 +195,10 @@ fn set_content() -> postit::Result<()> {
 }
 
 #[test]
-fn set_err() -> postit::Result<()> {
+fn set_err() {
     let cli = Cli {
         command: Command::Set(args::Set {
-            persister: Some("test.txt".to_string()),
+            persister: Some("test.txt".to_owned()),
             subcommand: sub::Set::Content(args::SetContent {
                 content: String::from("New task"),
                 ids: vec![2, 3],
@@ -207,8 +207,6 @@ fn set_err() -> postit::Result<()> {
     };
 
     assert!(Postit::run(cli).is_err());
-
-    Ok(())
 }
 
 #[test]
@@ -264,17 +262,15 @@ fn uncheck() -> postit::Result<()> {
 }
 
 #[test]
-fn edit_err() -> postit::Result<()> {
+fn edit_err() {
     let file = "fake.csv";
     let ids = vec![2, 3];
 
     let cli = Cli {
-        command: Command::Check(args::Edit { persister: Some(file.to_string()), ids }),
+        command: Command::Check(args::Edit { persister: Some(file.to_owned()), ids }),
     };
 
     assert!(Postit::run(cli).is_err());
-
-    Ok(())
 }
 
 #[test]
@@ -351,7 +347,7 @@ fn copy() -> postit::Result<()> {
     let cli = Cli {
         command: Command::Copy(args::Copy {
             left: mock_left.to_string(),
-            right: right_str.to_string(),
+            right: right_str.to_owned(),
         }),
     };
 
@@ -379,7 +375,7 @@ fn copy_from_ok() -> postit::Result<()> {
 
     let cli = Cli {
         command: Command::Copy(args::Copy {
-            left: "from".to_string(),
+            left: "from".to_owned(),
             right: mock_right.path().to_string_lossy().to_string(),
         }),
     };
@@ -405,7 +401,7 @@ fn copy_from_err() -> postit::Result<()> {
 
     let cli = Cli {
         command: Command::Copy(args::Copy {
-            left: "from".to_string(),
+            left: "from".to_owned(),
             right: mock_right.path().to_string_lossy().to_string(),
         }),
     };
@@ -428,7 +424,7 @@ fn copy_to_ok() -> postit::Result<()> {
 
     let cli = Cli {
         command: Command::Copy(args::Copy {
-            left: "to".to_string(),
+            left: "to".to_owned(),
             right: left_right.to_string_lossy().to_string(),
         }),
     };
@@ -455,7 +451,7 @@ fn copy_to_err() -> postit::Result<()> {
 
     let cli = Cli {
         command: Command::Copy(args::Copy {
-            left: "to".to_string(),
+            left: "to".to_owned(),
             right: left_right.to_string_lossy().to_string(),
         }),
     };
