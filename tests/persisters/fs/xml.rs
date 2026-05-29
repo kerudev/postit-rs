@@ -1,6 +1,6 @@
 use std::fs;
-use std::io::Read;
-use std::ops::Not;
+use std::io::Read as _;
+use std::ops::Not as _;
 
 use postit::fs::{Format, Xml};
 use postit::models::Todo;

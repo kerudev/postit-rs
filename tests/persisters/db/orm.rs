@@ -1,9 +1,9 @@
-use std::ops::Not;
+use std::ops::Not as _;
 
 use postit::config::Config;
 use postit::db::{Mongo, Orm, Protocol};
 use postit::models::{Task, Todo};
-use postit::traits::{DbPersister, Persister};
+use postit::traits::{DbPersister as _, Persister as _};
 use postit::Action;
 
 use crate::mocks::{MockConfig, MockConn};
@@ -45,7 +45,7 @@ fn orm_fmt_debug() -> postit::Result<()> {
     let persister = Orm::get_persister(mock.conn())?;
     let orm = Orm::new(persister);
 
-    let debug_output = format!("{:?}", orm);
+    let debug_output = format!("{orm:?}");
     let expected_output = format!("Orm {{ db: {:?} }}", mock.conn());
 
     assert_eq!(debug_output, expected_output);

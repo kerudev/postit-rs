@@ -3,7 +3,6 @@
 //! Their information can be accessed by using:
 //! - postit docs <COMMAND>
 
-
 #![allow(clippy::single_call_fn)]
 
 use crate::cli::subcommands as sub;

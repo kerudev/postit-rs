@@ -13,7 +13,6 @@
 //! To get more info, run `postit -h` or take a look to the README file.
 
 #![warn(
-    clippy::single_call_fn,
     clippy::missing_docs_in_private_items,
     clippy::missing_inline_in_public_items,
     missing_docs
@@ -26,8 +25,8 @@
 pub mod models;
 
 mod core;
-mod persisters;
 mod docs;
+mod persisters;
 
 pub use core::*;
 pub use docs::Docs;

@@ -1,6 +1,13 @@
+#![allow(
+    clippy::missing_errors_doc,
+    clippy::needless_pass_by_value,
+    clippy::missing_panics_doc,
+    clippy::return_self_not_must_use
+)]
+
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::io::Write;
+use std::io::Write as _;
 use std::path::{Path, PathBuf};
 use std::{env, fmt, fs};
 
@@ -104,12 +111,12 @@ impl MockPath {
     /// Auxiliary constructor of the `MockPath` struct.
     pub fn blank(format: Format) -> postit::Result<Self> {
         let tmp = env::current_dir()?.join("tmp");
-        let _env = MockEnvVar::new().set([("POSTIT_ROOT", tmp)]);
+        let mock_env = MockEnvVar::new().set([("POSTIT_ROOT", tmp)]);
 
         let path = Config::build_path("test_file")?;
         let name = path.to_str().unwrap();
 
-        let file = match format {
+        let file = match &format {
             #[cfg(feature = "json")]
             Format::Json => Self::json(name),
 
@@ -120,7 +127,7 @@ impl MockPath {
             _ => Self::csv(name),
         };
 
-        let path = file.path().to_path_buf();
+        let path = file.path().clone();
 
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)?;
@@ -128,12 +135,12 @@ impl MockPath {
 
         fs::write(&path, file.default())?;
 
-        Ok(Self { instance: file, path, _env })
+        Ok(Self { instance: file, path, _env: mock_env })
     }
 
     pub fn from<T: AsRef<Path>>(path: T) -> postit::Result<Self> {
         let tmp = env::current_dir()?.join("tmp");
-        let _env = MockEnvVar::new().set([("POSTIT_ROOT", tmp)]);
+        let mock_env = MockEnvVar::new().set([("POSTIT_ROOT", tmp)]);
 
         let mut path = path.as_ref().to_path_buf();
         let var = env::var("POSTIT_ROOT").map_err(postit::Error::wrap)?;
@@ -149,7 +156,7 @@ impl MockPath {
 
         let file = File::get_persister(&path)?;
 
-        Ok(Self { instance: file, path, _env })
+        Ok(Self { instance: file, path, _env: mock_env })
     }
 
     pub fn csv(name: &str) -> Box<dyn FilePersister> {
@@ -200,7 +207,7 @@ impl MockConn {
     /// Constructor of the `MockPath` struct.
     pub fn new(conn: &str) -> postit::Result<Self> {
         let tmp = env::current_dir()?.join("tmp");
-        let _env = MockEnvVar::new().set([("POSTIT_ROOT", tmp)]);
+        let mock_env = MockEnvVar::new().set([("POSTIT_ROOT", tmp)]);
 
         let env = env::var("POSTIT_ROOT").map_err(postit::Error::wrap)?;
         let path = PathBuf::from(env);
@@ -211,7 +218,7 @@ impl MockConn {
 
         Ok(Self {
             instance: Orm::get_persister(conn)?,
-            _env,
+            _env: mock_env,
         })
     }
 
@@ -243,9 +250,9 @@ impl MockConn {
 impl Drop for MockConn {
     fn drop(&mut self) {
         if Orm::is_sqlite(&self.instance.conn()) {
-            self.instance.drop_database().unwrap()
+            self.instance.drop_database().unwrap();
         } else {
-            self.instance.drop_table().unwrap()
+            self.instance.drop_table().unwrap();
         }
     }
 }
@@ -264,13 +271,17 @@ impl MockConfig {
     /// Constructor of the `MockConfig` struct.
     pub fn new() -> postit::Result<Self> {
         let tmp = env::current_dir()?.join("tmp");
-        let _env = MockEnvVar::new().set([("POSTIT_ROOT", tmp)]);
+        let mock_env = MockEnvVar::new().set([("POSTIT_ROOT", tmp)]);
 
         Config::init()?;
 
         let path = Config::path()?;
 
-        Ok(Self { path, config: Config::load()?, _env })
+        Ok(Self {
+            path,
+            config: Config::load()?,
+            _env: mock_env,
+        })
     }
 
     pub fn save(&mut self) -> postit::Result<()> {

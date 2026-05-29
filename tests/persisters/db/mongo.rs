@@ -1,6 +1,6 @@
 use postit::db::{Mongo, Protocol};
 use postit::models::Todo;
-use postit::traits::DbPersister;
+use postit::traits::DbPersister as _;
 use postit::Action;
 
 use crate::mocks::MockConn;

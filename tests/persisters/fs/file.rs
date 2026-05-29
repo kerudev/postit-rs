@@ -1,9 +1,9 @@
 use std::fs;
-use std::ops::Not;
+use std::ops::Not as _;
 
 use postit::fs::{Csv, File, Format};
 use postit::models::Todo;
-use postit::traits::{FilePersister, Persister};
+use postit::traits::{FilePersister as _, Persister as _};
 use postit::Action;
 
 use crate::mocks::MockPath;
@@ -43,7 +43,7 @@ fn file_fmt_debug() -> postit::Result<()> {
     let persister = File::get_persister(mock.path())?;
     let file = File::new(persister);
 
-    let debug_output = format!("{:?}", file);
+    let debug_output = format!("{file:?}");
     let expected_output = format!("File {{ file: {:?} }}", mock.path());
 
     assert_eq!(debug_output, expected_output);
@@ -57,7 +57,7 @@ fn path() -> postit::Result<()> {
 
     let file = File::from(mock.to_string())?;
 
-    let result = file.path().to_path_buf();
+    let result = file.path().clone();
     let expect = mock.path();
 
     assert_eq!(result, expect);

@@ -48,7 +48,7 @@ fn to_string() {
     let task = fake_task_unchecked();
 
     let result = task.as_line();
-    let expect = format!("{},{},{},{}", task.id, task.content, task.priority, task.checked,);
+    let expect = format!("{},{},{},{}", task.id, task.content, task.priority, task.checked);
 
     assert_eq!(result, expect);
 }

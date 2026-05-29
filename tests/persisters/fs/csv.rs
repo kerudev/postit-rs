@@ -1,10 +1,10 @@
 use std::fs;
-use std::io::Read;
-use std::ops::Not;
+use std::io::Read as _;
+use std::ops::Not as _;
 
 use postit::fs::{Csv, Format};
 use postit::models::Todo;
-use postit::traits::FilePersister;
+use postit::traits::FilePersister as _;
 
 use crate::mocks::MockPath;
 

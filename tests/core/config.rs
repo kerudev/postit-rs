@@ -1,4 +1,6 @@
-use std::ops::Not;
+#![allow(clippy::should_panic_without_expect)]
+
+use std::ops::Not as _;
 use std::path::PathBuf;
 
 use postit::cli::{arguments as args, subcommands as sub};
@@ -15,15 +17,15 @@ fn error_wrap() {
 }
 
 #[test]
-fn fmt_display() -> postit::Result<()> {
+fn fmt_display() {
     let config = Config {
-        persister: "tasks.json".to_string(),
+        persister: "tasks.json".to_owned(),
         force_drop: true,
         force_copy: false,
         drop_after_copy: true,
     };
 
-    let result = format!("{}", config);
+    let result = format!("{config}");
 
     let expect = "
 persister: tasks.json
@@ -32,8 +34,6 @@ force_copy: false
 drop_after_copy: true";
 
     assert_eq!(result.trim(), expect.trim());
-
-    Ok(())
 }
 
 #[test]
@@ -127,12 +127,10 @@ fn env_output() -> postit::Result<()> {
 }
 
 #[test]
-fn env_is_empty() -> postit::Result<()> {
+fn env_is_empty() {
     let _env = MockEnvVar::new().set([("POSTIT_ROOT", "")]);
 
     assert!(Config::print_env().is_err());
-
-    Ok(())
 }
 
 #[test]
@@ -265,7 +263,7 @@ fn manage_set_all() -> postit::Result<()> {
 }
 
 #[test]
-fn manage_set_err_path_doesnt_exist() -> postit::Result<()> {
+fn manage_set_err_path_doesnt_exist() {
     let args = args::ConfigSet {
         persister: None,
         force_drop: None,
@@ -276,8 +274,6 @@ fn manage_set_err_path_doesnt_exist() -> postit::Result<()> {
     let err = Config::manage(sub::Config::Set(args)).unwrap_err();
 
     assert!(matches!(err, postit::config::Error::FileDoesntExist(_)));
-
-    Ok(())
 }
 
 #[test]
@@ -299,20 +295,18 @@ fn manage_set_err_none_set() -> postit::Result<()> {
 }
 
 #[test]
-fn default() -> postit::Result<()> {
+fn default() {
     let config = Config::default();
 
     assert_eq!(config.persister, "tasks.csv");
     assert!(config.force_drop.not());
     assert!(config.force_copy.not());
     assert!(config.drop_after_copy.not());
-
-    Ok(())
 }
 
 #[test]
 fn path_from_env_err_not_unicode() {
-    use std::os::unix::ffi::OsStrExt;
+    use std::os::unix::ffi::OsStrExt as _;
 
     let value = std::ffi::OsStr::from_bytes(b"\xFFinvalid");
     let _env = MockEnvVar::new().set([("POSTIT_ROOT", value)]);
@@ -347,12 +341,10 @@ fn path_default() -> postit::Result<()> {
 }
 
 #[test]
-fn path_empty_env() -> postit::Result<()> {
+fn path_empty_env() {
     let _env = MockEnvVar::new().set([("POSTIT_ROOT", "")]);
 
     assert!(Config::path().is_err());
-
-    Ok(())
 }
 
 #[test]

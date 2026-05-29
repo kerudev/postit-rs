@@ -2,8 +2,8 @@
 use postit::db::{Mongo, Protocol};
 use postit::fs::{Csv, Format};
 #[cfg(any(feature = "mongo", feature = "sqlite"))]
-use postit::traits::DbPersister;
-use postit::traits::FilePersister;
+use postit::traits::DbPersister as _;
+use postit::traits::FilePersister as _;
 use postit::Postit;
 
 use crate::mocks::MockPath;

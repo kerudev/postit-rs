@@ -1,10 +1,10 @@
-use std::ops::Not;
+use std::ops::Not as _;
 use std::path::PathBuf;
 
 use postit::config::Config;
 use postit::db::{Protocol, Sqlite};
 use postit::models::Todo;
-use postit::traits::DbPersister;
+use postit::traits::DbPersister as _;
 use postit::Action;
 
 use crate::mocks::MockConn;
@@ -14,7 +14,7 @@ fn fmt_debug() -> postit::Result<()> {
     let mock = MockConn::create(Protocol::Sqlite)?;
     let sqlite = Sqlite::from(mock.conn())?;
 
-    let result = format!("{:?}", sqlite);
+    let result = format!("{sqlite:?}");
     let expect =
         format!("Sqlite {{ conn_str: {:?}, connection: \"[connection omitted]\" }}", sqlite.conn());
 
