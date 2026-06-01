@@ -5,6 +5,8 @@
 
 #![allow(clippy::single_call_fn)]
 
+use anyhow::bail;
+
 #[cfg(any(feature = "mongo", feature = "sqlite"))]
 use crate::db::Orm;
 use crate::fs::File;
@@ -31,7 +33,7 @@ impl Postit {
     /// # Errors
     /// - Any error while doing operations on a persister.
     #[inline]
-    pub fn run(cli: Cli) -> super::Result<()> {
+    pub fn run(cli: Cli) -> anyhow::Result<()> {
         match cli.command {
             Command::Docs(args) => {
                 Self::docs(&args);
@@ -60,7 +62,7 @@ impl Postit {
     /// # Errors
     /// - The persister can't be obtained.
     #[inline]
-    pub fn get_persister<T>(persister: Option<T>) -> crate::Result<Box<dyn Persister>>
+    pub fn get_persister<T>(persister: Option<T>) -> anyhow::Result<Box<dyn Persister>>
     where
         T: AsRef<str>,
     {
@@ -83,12 +85,12 @@ impl Postit {
     }
 
     /// Shows the list of current tasks.
-    fn view(args: args::Persister) -> super::Result<()> {
+    fn view(args: args::Persister) -> anyhow::Result<()> {
         Self::get_persister(args.persister)?.view()
     }
 
     /// Adds a new task to the list.
-    fn add(args: args::Add) -> super::Result<()> {
+    fn add(args: args::Add) -> anyhow::Result<()> {
         let persister = Self::get_persister(args.persister)?;
 
         if !persister.exists()? {
@@ -108,12 +110,11 @@ impl Postit {
     }
 
     /// Changes the values of a task depending on the `Set` variant.
-    fn set(args: args::Set) -> super::Result<()> {
+    fn set(args: args::Set) -> anyhow::Result<()> {
         let persister = Self::get_persister(args.persister)?;
 
         if !persister.exists()? {
-            let msg = "The persister doesn't exist; add a task first to use this command";
-            return Err(super::Error::wrap(msg));
+            bail!("The persister doesn't exist; add a task first to use this command");
         }
 
         let mut todo = Todo::from(persister.as_ref())?;
@@ -131,12 +132,11 @@ impl Postit {
     }
 
     /// Edits tasks based on the action passed.
-    fn edit(args: args::Edit, action: &Action) -> super::Result<()> {
+    fn edit(args: args::Edit, action: &Action) -> anyhow::Result<()> {
         let persister = Self::get_persister(args.persister)?;
 
         if !persister.exists()? {
-            let msg = "The persister doesn't exist; add a task first to use this command";
-            return Err(super::Error::wrap(msg));
+            bail!("The persister doesn't exist; add a task first to use this command");
         }
 
         let mut todo = Todo::from(persister.as_ref())?;
@@ -159,7 +159,7 @@ impl Postit {
     /// - Both persisters are the same.
     /// - The left persister has no tasks.
     /// - The right persister has tasks.    
-    fn copy(args: &args::Copy) -> super::Result<()> {
+    fn copy(args: &args::Copy) -> anyhow::Result<()> {
         let config = Config::load()?;
 
         let (left_path, right_path) = match args.left.as_ref() {
@@ -169,15 +169,13 @@ impl Postit {
         };
 
         if left_path == right_path {
-            let msg = "Both persisters are the same";
-            return Err(super::Error::wrap(msg));
+            bail!("Both persisters are the same");
         }
 
         let left = Self::get_persister(Some(left_path))?;
 
         if left.tasks()?.is_empty() {
-            let msg = format!("The persister '{}' has no tasks to copy", left.to_string());
-            return Err(super::Error::wrap(msg));
+            bail!("The persister '{}' has no tasks to copy", left.to_string());
         }
 
         let right = Self::get_persister(Some(right_path))?;
@@ -187,12 +185,10 @@ impl Postit {
         }
 
         if !config.force_copy && right.tasks()? != Vec::new() {
-            let msg = format!(
+            bail!(
                 "The persister '{}' already has tasks.\nSet 'force_copy' to 'true' to overwrite them.",
                 right.to_string()
             );
-
-            return Err(super::Error::wrap(msg));
         }
 
         right.replace(&Todo::from(left.as_ref())?)?;
@@ -207,7 +203,7 @@ impl Postit {
     }
 
     /// Populates the persister with fake data for testing purposes.
-    fn sample(args: args::Persister) -> super::Result<()> {
+    fn sample(args: args::Persister) -> anyhow::Result<()> {
         let persister = Self::get_persister(args.persister)?;
 
         if !persister.exists()? {
@@ -222,19 +218,17 @@ impl Postit {
     }
 
     /// Cleans the tasks from a file.
-    fn clean(args: args::Persister) -> super::Result<()> {
+    fn clean(args: args::Persister) -> anyhow::Result<()> {
         Self::get_persister(args.persister)?.clean()
     }
 
     /// Removes a persister completely (file or table).
-    fn remove(args: args::Persister) -> super::Result<()> {
+    fn remove(args: args::Persister) -> anyhow::Result<()> {
         Self::get_persister(args.persister)?.remove()
     }
 
     /// Manages the configuration file.   
-    fn config(args: args::Config) -> super::Result<()> {
-        Config::manage(args.subcommand)?;
-
-        Ok(())
+    fn config(args: args::Config) -> anyhow::Result<()> {
+        Config::manage(args.subcommand)
     }
 }

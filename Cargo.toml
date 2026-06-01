@@ -42,6 +42,7 @@ serde_json = { version = "1.0.135", optional = true }
 quick-xml = { version = "0.37.2", features = ["serialize"], optional = true }
 sqlite = { version = "0.36.1", optional = true }
 mongodb = { version = "3.2.3", features = ["sync"], optional = true }
+anyhow = "1.0.102"
 
 [dev-dependencies]
 assert_cmd = "2.0.16"

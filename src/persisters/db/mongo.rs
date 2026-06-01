@@ -2,6 +2,8 @@
 //!
 //! The `Mongo` struct implements the [`DbPersister`] trait.
 
+use anyhow::bail;
+
 use std::time::Duration;
 
 use mongodb::bson::{doc, Bson, Document};
@@ -38,7 +40,7 @@ impl Mongo {
     /// - [`ClientOptions`] can't be parsed.
     /// - [`Client`] couldn't be opened.
     #[inline]
-    pub fn from<T: AsRef<str>>(uri: T) -> super::Result<Self> {
+    pub fn from<T: AsRef<str>>(uri: T) -> anyhow::Result<Self> {
         let uri = uri.as_ref();
 
         let mut options = ClientOptions::parse(uri).run()?;
@@ -88,20 +90,19 @@ impl DbPersister for Mongo {
     }
 
     #[inline]
-    fn exists(&self) -> super::Result<bool> {
+    fn exists(&self) -> anyhow::Result<bool> {
         let names = self.db().list_collection_names().run()?;
 
         Ok(names.contains(&self.table()))
     }
 
     #[inline]
-    fn tasks(&self) -> super::Result<Vec<Task>> {
+    fn tasks(&self) -> anyhow::Result<Vec<Task>> {
         if !self.exists()? {
-            let err = format!(
+            bail!(
                 "The '{}' collection doesn't exist; add a task first to use this command",
                 self.table()
             );
-            return Err(super::Error::wrap(err));
         }
 
         let tasks = self
@@ -115,7 +116,7 @@ impl DbPersister for Mongo {
     }
 
     #[inline]
-    fn count(&self) -> super::Result<u32> {
+    fn count(&self) -> anyhow::Result<u32> {
         if !self.exists()? {
             return Ok(0);
         }
@@ -131,7 +132,7 @@ impl DbPersister for Mongo {
     }
 
     #[inline]
-    fn create(&self) -> super::Result<()> {
+    fn create(&self) -> anyhow::Result<()> {
         let table = self.table();
 
         self.db().create_collection(&table).run()?;
@@ -142,7 +143,7 @@ impl DbPersister for Mongo {
     }
 
     #[inline]
-    fn insert(&self, todo: &Todo) -> super::Result<()> {
+    fn insert(&self, todo: &Todo) -> anyhow::Result<()> {
         let docs: Vec<Document> = todo
             .tasks
             .iter()
@@ -162,7 +163,7 @@ impl DbPersister for Mongo {
     }
 
     #[inline]
-    fn update(&self, todo: &Todo, ids: &[u32], action: &Action) -> super::Result<()> {
+    fn update(&self, todo: &Todo, ids: &[u32], action: &Action) -> anyhow::Result<()> {
         if matches!(action, Action::Drop) {
             return self.delete(ids);
         }
@@ -188,7 +189,7 @@ impl DbPersister for Mongo {
     }
 
     #[inline]
-    fn delete(&self, ids: &[u32]) -> super::Result<()> {
+    fn delete(&self, ids: &[u32]) -> anyhow::Result<()> {
         let query = doc! { "id": {"$in": ids }};
 
         self.collection::<String>().delete_many(query).run()?;
@@ -197,7 +198,7 @@ impl DbPersister for Mongo {
     }
 
     #[inline]
-    fn drop_table(&self) -> super::Result<()> {
+    fn drop_table(&self) -> anyhow::Result<()> {
         self.collection::<Task>().drop().run()?;
 
         // println!("Removed the '{}' collection", self.table());
@@ -206,7 +207,7 @@ impl DbPersister for Mongo {
     }
 
     #[inline]
-    fn drop_database(&self) -> super::Result<()> {
+    fn drop_database(&self) -> anyhow::Result<()> {
         self.db().drop().run()?;
 
         println!("Removed the '{}' database", self.database());
@@ -215,7 +216,7 @@ impl DbPersister for Mongo {
     }
 
     #[inline]
-    fn clean(&self) -> super::Result<()> {
+    fn clean(&self) -> anyhow::Result<()> {
         self.collection::<String>().delete_many(doc! {}).run()?;
 
         Ok(())
