@@ -16,7 +16,7 @@ mod json;
 mod xml;
 
 pub use csv::Csv;
-pub use error::{Error, Result};
+pub use error::Error;
 pub use file::{File, Format};
 
 #[cfg(feature = "json")]

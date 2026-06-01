@@ -11,6 +11,7 @@ pub mod error {
     use std::fmt;
 
     /// Errors related to task management.
+    #[non_exhaustive]
     pub enum Error {
         /// Thrown when `task.checked == true` and the user checks it again.
         AlreadyChecked {

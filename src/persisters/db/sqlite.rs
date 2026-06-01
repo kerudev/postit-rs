@@ -2,6 +2,8 @@
 //!
 //! The `Sqlite` struct implements the [`DbPersister`] trait.
 
+use anyhow::bail;
+
 use std::path::Path;
 use std::{fmt, fs};
 
@@ -50,7 +52,7 @@ impl Sqlite {
     /// # Panics
     /// - The path can't be converted to &str.
     #[inline]
-    pub fn from<T: AsRef<Path>>(conn: T) -> crate::Result<Self> {
+    pub fn from<T: AsRef<Path>>(conn: T) -> anyhow::Result<Self> {
         let path = Config::build_path(conn.as_ref())?;
 
         if !path.exists() {
@@ -79,7 +81,7 @@ impl Sqlite {
     /// # Errors
     /// - A value can't be read.
     #[inline]
-    pub fn read_row(&self, stmt: &Statement) -> super::Result<String> {
+    pub fn read_row(&self, stmt: &Statement) -> anyhow::Result<String> {
         let row = format!(
             "{},{},{},{}",
             stmt.read::<i64, _>("id")?,
@@ -140,7 +142,7 @@ impl DbPersister for Sqlite {
     /// - The statement can't be prepared.
     /// - The name column can't be read.
     #[inline]
-    fn exists(&self) -> super::Result<bool> {
+    fn exists(&self) -> anyhow::Result<bool> {
         #[rustfmt::skip]
         let query = format!("
             SELECT *
@@ -161,13 +163,12 @@ impl DbPersister for Sqlite {
     }
 
     #[inline]
-    fn tasks(&self) -> super::Result<Vec<Task>> {
+    fn tasks(&self) -> anyhow::Result<Vec<Task>> {
         if !self.exists()? {
-            let err = format!(
+            bail!(
                 "The '{}' table has no tasks; add a task first to use this command",
                 self.table()
             );
-            return Err(super::Error::wrap(err));
         }
 
         let query = format!("SELECT * FROM {}", self.table());
@@ -183,7 +184,7 @@ impl DbPersister for Sqlite {
     }
 
     #[inline]
-    fn count(&self) -> super::Result<u32> {
+    fn count(&self) -> anyhow::Result<u32> {
         if !self.exists()? {
             return Ok(0);
         }
@@ -199,7 +200,7 @@ impl DbPersister for Sqlite {
     }
 
     #[inline]
-    fn create(&self) -> super::Result<()> {
+    fn create(&self) -> anyhow::Result<()> {
         #[rustfmt::skip]
         let query = format!("
             CREATE TABLE IF NOT EXISTS {} (
@@ -218,7 +219,7 @@ impl DbPersister for Sqlite {
     }
 
     #[inline]
-    fn insert(&self, todo: &Todo) -> super::Result<()> {
+    fn insert(&self, todo: &Todo) -> anyhow::Result<()> {
         #[rustfmt::skip]
         let query = format!("
             INSERT INTO {} (content, priority, checked)
@@ -244,7 +245,7 @@ impl DbPersister for Sqlite {
     }
 
     #[inline]
-    fn update(&self, todo: &Todo, ids: &[u32], action: &Action) -> super::Result<()> {
+    fn update(&self, todo: &Todo, ids: &[u32], action: &Action) -> anyhow::Result<()> {
         if matches!(action, Action::Drop) {
             return self.delete(ids);
         }
@@ -273,7 +274,7 @@ impl DbPersister for Sqlite {
     }
 
     #[inline]
-    fn delete(&self, ids: &[u32]) -> super::Result<()> {
+    fn delete(&self, ids: &[u32]) -> anyhow::Result<()> {
         #[rustfmt::skip]
         let query = format!("
             DELETE FROM {}
@@ -289,7 +290,7 @@ impl DbPersister for Sqlite {
     }
 
     #[inline]
-    fn drop_table(&self) -> super::Result<()> {
+    fn drop_table(&self) -> anyhow::Result<()> {
         let table = self.table();
         let query = format!("DROP TABLE {table}");
 
@@ -301,8 +302,8 @@ impl DbPersister for Sqlite {
     }
 
     #[inline]
-    fn drop_database(&self) -> super::Result<()> {
-        fs::remove_file(self.conn()).map_err(super::Error::wrap)?;
+    fn drop_database(&self) -> anyhow::Result<()> {
+        fs::remove_file(self.conn())?;
 
         println!("Removed the '{}' file", self.database());
 
@@ -310,7 +311,7 @@ impl DbPersister for Sqlite {
     }
 
     #[inline]
-    fn clean(&self) -> super::Result<()> {
+    fn clean(&self) -> anyhow::Result<()> {
         let table = self.table();
         let query = format!("DELETE FROM {table}");
 

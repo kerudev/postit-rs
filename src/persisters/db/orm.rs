@@ -6,6 +6,8 @@
 use std::fmt;
 use std::path::Path;
 
+use anyhow::bail;
+
 #[cfg(feature = "mongo")]
 use super::Mongo;
 #[cfg(feature = "sqlite")]
@@ -95,7 +97,7 @@ impl Orm {
     /// # Errors
     /// - The database persister can't be obtained.
     #[inline]
-    pub fn from<T: AsRef<str>>(conn: T) -> crate::Result<Self> {
+    pub fn from<T: AsRef<str>>(conn: T) -> anyhow::Result<Self> {
         Ok(Self { db: Self::get_persister(conn)? })
     }
 
@@ -119,7 +121,7 @@ impl Orm {
     /// - If the persister can't be obtained.
     /// - If the connection string is empty.
     #[inline]
-    pub fn get_persister<T: AsRef<str>>(conn: T) -> crate::Result<Box<dyn DbPersister>> {
+    pub fn get_persister<T: AsRef<str>>(conn: T) -> anyhow::Result<Box<dyn DbPersister>> {
         let conn = conn.as_ref();
 
         #[cfg(feature = "sqlite")]
@@ -130,7 +132,7 @@ impl Orm {
         let parts: Vec<&str> = conn.split("://").collect();
 
         if parts[0].is_empty() {
-            return Err(crate::Error::Db(db::Error::IncorrectConnectionString));
+            bail!(db::Error::IncorrectConnectionString);
         }
 
         let protocol = parts[0];
@@ -157,69 +159,49 @@ impl Persister for Orm {
     }
 
     #[inline]
-    fn create(&self) -> crate::Result<()> {
-        self.db.create().map_err(|e| {
-            eprintln!("Can't create the table");
-            crate::Error::Db(e)
-        })
+    fn create(&self) -> anyhow::Result<()> {
+        self.db.create()
     }
 
     #[inline]
-    fn exists(&self) -> crate::Result<bool> {
-        self.db.exists().map_err(|e| {
-            eprintln!("The table doesn't exist; add a task first to use this command");
-            crate::Error::Db(e)
-        })
+    fn exists(&self) -> anyhow::Result<bool> {
+        self.db.exists()
     }
 
     #[inline]
-    fn view(&self) -> crate::Result<()> {
-        Todo::new(self.tasks()?).view()?;
-
-        Ok(())
+    fn view(&self) -> anyhow::Result<()> {
+        Todo::new(self.tasks()?).view()
     }
 
     #[inline]
-    fn tasks(&self) -> crate::Result<Vec<Task>> {
-        self.db.tasks().map_err(crate::Error::Db)
+    fn tasks(&self) -> anyhow::Result<Vec<Task>> {
+        self.db.tasks()
     }
 
     #[inline]
-    fn edit(&self, todo: &Todo, ids: &[u32], action: &Action) -> crate::Result<()> {
-        self.db.update(todo, ids, action).map_err(|e| {
-            eprintln!("Can't perform the '{action}' action");
-            crate::Error::Db(e)
-        })
+    fn edit(&self, todo: &Todo, ids: &[u32], action: &Action) -> anyhow::Result<()> {
+        self.db.update(todo, ids, action)
     }
 
     #[inline]
-    fn save(&self, todo: &Todo) -> crate::Result<()> {
+    fn save(&self, todo: &Todo) -> anyhow::Result<()> {
         if self.db.count()? == 0 {
-            return self.db.insert(todo).map_err(|e| {
-                eprintln!("Can't insert into the table");
-                crate::Error::Db(e)
-            });
+            return self.db.insert(todo);
         }
 
         let last = todo.tasks.last().unwrap().clone();
         let task = Todo::new(last);
 
-        self.db.insert(&task).map_err(|e| {
-            eprintln!("Can't insert into the table");
-            crate::Error::Db(e)
-        })
+        self.db.insert(&task)
     }
 
     #[inline]
-    fn replace(&self, todo: &Todo) -> crate::Result<()> {
+    fn replace(&self, todo: &Todo) -> anyhow::Result<()> {
         if self.exists()? {
             self.db.clean()?;
         }
 
-        self.db.insert(todo).map_err(|e| {
-            eprintln!("Can't insert into the table");
-            crate::Error::Db(e)
-        })?;
+        self.db.insert(todo)?;
 
         println!("Replaced the tasks of '{}'", self.db.conn());
 
@@ -227,16 +209,13 @@ impl Persister for Orm {
     }
 
     #[inline]
-    fn clean(&self) -> crate::Result<()> {
+    fn clean(&self) -> anyhow::Result<()> {
         if self.tasks()?.is_empty() {
             eprintln!("There are no tasks to delete in the table");
             return Ok(());
         }
 
-        self.db.clean().map_err(|e| {
-            eprintln!("Can't clean the table");
-            crate::Error::Db(e)
-        })?;
+        self.db.clean()?;
 
         println!("Cleaned the tasks from the '{}' table", self.db.table());
 
@@ -244,7 +223,7 @@ impl Persister for Orm {
     }
 
     #[inline]
-    fn remove(&self) -> crate::Result<()> {
+    fn remove(&self) -> anyhow::Result<()> {
         let table = self.db.table();
 
         if !self.exists()? {
@@ -252,10 +231,7 @@ impl Persister for Orm {
             return Ok(());
         }
 
-        self.db.drop_table().map_err(|e| {
-            eprintln!("Can't drop the table");
-            crate::Error::Db(e)
-        })?;
+        self.db.drop_table()?;
 
         print!("Removed the '{}' table from '{}'", self.db.table(), self.db.conn());
 

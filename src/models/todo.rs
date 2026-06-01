@@ -1,5 +1,7 @@
 //! Collection of existing tasks. This is where major task management is made.
 
+use anyhow::bail;
+
 use super::Priority;
 use crate::cli::subcommands as sub;
 use crate::config::Config;
@@ -40,7 +42,7 @@ impl Todo {
     /// # Errors
     /// - The tasks can't be obtained from the persister.
     #[inline]
-    pub fn from(persister: &dyn Persister) -> crate::Result<Self> {
+    pub fn from(persister: &dyn Persister) -> anyhow::Result<Self> {
         Ok(Self { tasks: persister.tasks()? })
     }
 
@@ -78,10 +80,9 @@ impl Todo {
     /// # Errors
     /// - There are no tasks stored in the instance.
     #[inline]
-    pub fn view(&self) -> crate::Result<()> {
+    pub fn view(&self) -> anyhow::Result<()> {
         if self.tasks.is_empty() {
-            let err = "There are no tasks to print";
-            return Err(crate::Error::wrap(err));
+            bail!("There are no tasks to print");
         }
 
         self.tasks.iter().for_each(|task| println!("{task}"));
@@ -100,7 +101,7 @@ impl Todo {
     /// # Errors
     /// - Bubbled up from [`Todo::set_priority`] or [`Todo::set_content`].
     #[inline]
-    pub fn set(&mut self, cmnd: &sub::Set) -> crate::Result<()> {
+    pub fn set(&mut self, cmnd: &sub::Set) -> anyhow::Result<()> {
         match cmnd {
             sub::Set::Priority(args) => self.set_priority(&args.ids, &args.priority),
             sub::Set::Content(args) => self.set_content(&args.ids, &args.content),
@@ -112,10 +113,9 @@ impl Todo {
     /// # Errors
     /// - There are no tasks stored in the instance.
     #[inline]
-    pub fn set_priority(&mut self, ids: &[u32], priority: &Priority) -> crate::Result<()> {
+    pub fn set_priority(&mut self, ids: &[u32], priority: &Priority) -> anyhow::Result<()> {
         if self.tasks.is_empty() {
-            let err = "There are no tasks to edit";
-            return Err(crate::Error::wrap(err));
+            bail!("There are no tasks to edit");
         }
 
         for task in self.get_mut(ids) {
@@ -130,10 +130,9 @@ impl Todo {
     /// # Errors
     /// - There are no tasks stored in the instance.
     #[inline]
-    pub fn set_content(&mut self, ids: &[u32], content: &str) -> crate::Result<()> {
+    pub fn set_content(&mut self, ids: &[u32], content: &str) -> anyhow::Result<()> {
         if self.tasks.is_empty() {
-            let err = "There are no tasks to edit";
-            return Err(crate::Error::wrap(err));
+            bail!("There are no tasks to edit");
         }
 
         for task in self.get_mut(ids) {
@@ -149,10 +148,9 @@ impl Todo {
     /// # Errors
     /// - There are no tasks stored in the instance.
     #[inline]
-    pub fn check(&mut self, ids: &[u32]) -> crate::Result<Vec<u32>> {
+    pub fn check(&mut self, ids: &[u32]) -> anyhow::Result<Vec<u32>> {
         if self.tasks.is_empty() {
-            let err = "There are no tasks to check";
-            return Err(crate::Error::wrap(err));
+            bail!("There are no tasks to check");
         }
 
         let mut changed_ids = vec![];
@@ -173,10 +171,9 @@ impl Todo {
     /// # Errors
     /// - There are no tasks stored in the instance.
     #[inline]
-    pub fn uncheck(&mut self, ids: &[u32]) -> crate::Result<Vec<u32>> {
+    pub fn uncheck(&mut self, ids: &[u32]) -> anyhow::Result<Vec<u32>> {
         if self.tasks.is_empty() {
-            let err = "There are no tasks to uncheck";
-            return Err(crate::Error::wrap(err));
+            bail!("There are no tasks to uncheck");
         }
 
         let mut changed_ids = vec![];
@@ -198,10 +195,9 @@ impl Todo {
     /// - If there are no tasks stored in the instance.
     /// - The configuration can't be loaded.
     #[inline]
-    pub fn drop(&mut self, ids: &[u32]) -> crate::Result<Vec<u32>> {
+    pub fn drop(&mut self, ids: &[u32]) -> anyhow::Result<Vec<u32>> {
         if self.tasks.is_empty() {
-            let err = "There are no tasks to drop";
-            return Err(crate::Error::wrap(err));
+            bail!("There are no tasks to drop");
         }
 
         let force_drop = Config::load()?.force_drop;

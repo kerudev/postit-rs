@@ -55,7 +55,7 @@ impl Xml {
     /// # Errors
     /// - The XML Event can't be written.
     #[inline]
-    pub fn todo_to_xml(todo: &Todo) -> super::Result<Vec<u8>> {
+    pub fn todo_to_xml(todo: &Todo) -> anyhow::Result<Vec<u8>> {
         let mut buffer = Vec::new();
         let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
 
@@ -93,7 +93,7 @@ impl Xml {
     /// # Errors
     /// - A value can't be unescaped.
     #[inline]
-    pub fn xml_to_tasks(mut reader: Reader<&[u8]>) -> super::Result<Vec<Task>> {
+    pub fn xml_to_tasks(mut reader: Reader<&[u8]>) -> anyhow::Result<Vec<Task>> {
         let mut tasks = vec![];
         let mut task = None::<Task>;
 
@@ -159,7 +159,7 @@ impl FilePersister for Xml {
     }
 
     #[inline]
-    fn tasks(&self) -> super::Result<Vec<Task>> {
+    fn tasks(&self) -> anyhow::Result<Vec<Task>> {
         let xml = fs::read_to_string(&self.path)?;
         let reader = Reader::from_str(xml.trim());
 
@@ -167,7 +167,7 @@ impl FilePersister for Xml {
     }
 
     #[inline]
-    fn open(&self) -> super::Result<fs::File> {
+    fn open(&self) -> anyhow::Result<fs::File> {
         let file = fs::OpenOptions::new()
             .read(true)
             .write(true)
@@ -179,9 +179,9 @@ impl FilePersister for Xml {
     }
 
     #[inline]
-    fn write(&self, todo: &Todo) -> super::Result<()> {
+    fn write(&self, todo: &Todo) -> anyhow::Result<()> {
         let buffer = Self::todo_to_xml(todo)?;
-        let xml = String::from_utf8(buffer).map_err(super::Error::wrap)?;
+        let xml = String::from_utf8(buffer)?;
 
         let bytes = [self.default(), xml].join("").into_bytes();
 
@@ -191,14 +191,14 @@ impl FilePersister for Xml {
     }
 
     #[inline]
-    fn clean(&self) -> super::Result<()> {
+    fn clean(&self) -> anyhow::Result<()> {
         fs::write(&self.path, self.default())?;
 
         Ok(())
     }
 
     #[inline]
-    fn remove(&self) -> super::Result<()> {
+    fn remove(&self) -> anyhow::Result<()> {
         fs::remove_file(&self.path)?;
 
         Ok(())
