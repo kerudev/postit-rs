@@ -107,7 +107,7 @@ impl File {
 
     /// Returns the path of the file.
     #[inline]
-    pub fn path(&self) -> &PathBuf {
+    pub fn path(&self) -> &Path {
         self.file.path()
     }
 
@@ -214,13 +214,13 @@ impl Persister for File {
 
     #[inline]
     fn create(&self) -> anyhow::Result<()> {
-        let path = &self.path();
+        let path = self.path();
 
         if path.exists() {
             bail!("The file already exists");
         }
 
-        println!("Creating '{}'", path.file_name().unwrap().to_string_lossy());
+        println!("Creating '{path:?}'");
 
         fs::write(path, self.file.default())?;
 
@@ -237,8 +237,7 @@ impl Persister for File {
         let path = self.path();
 
         if !path.exists() {
-            let path = path.file_name().unwrap().to_string_lossy().to_string();
-            bail!(super::Error::FileDoesntExist(path));
+            return Err(super::Error::FileDoesntExist(path.to_path_buf()));
         }
 
         Todo::new(self.tasks()?).view()?;
@@ -260,8 +259,7 @@ impl Persister for File {
         let path = self.path();
 
         if !path.exists() {
-            let path = path.file_name().unwrap().to_string_lossy();
-            return Err(super::Error::FileDoesntExist(path.to_string()).into());
+            bail!(super::Error::FileDoesntExist(path.to_path_buf()));
         }
 
         self.file.write(todo)
@@ -287,15 +285,15 @@ impl Persister for File {
     #[inline]
     fn clean(&self) -> anyhow::Result<()> {
         let path = self.path();
-        let file = path.file_name().unwrap().to_string_lossy();
+        let file = path.to_path_buf();
 
         if !path.exists() {
-            return Err(super::Error::FileDoesntExist(file.to_string()).into());
+            bail!(super::Error::FileDoesntExist(file));
         }
 
         self.file.clean()?;
 
-        println!("Cleaned '{file}'");
+        println!("Cleaned '{file:?}'");
 
         Ok(())
     }
@@ -303,15 +301,15 @@ impl Persister for File {
     #[inline]
     fn remove(&self) -> anyhow::Result<()> {
         let path = self.path();
-        let file = path.file_name().unwrap().to_string_lossy();
+        let file = path.to_path_buf();
 
         if !path.exists() {
-            return Err(super::Error::FileDoesntExist(file.to_string()).into());
+            bail!(super::Error::FileDoesntExist(file));
         }
 
         self.file.remove()?;
 
-        println!("Removed the '{file}' file");
+        println!("Removed the '{file:?}' file");
 
         Ok(())
     }

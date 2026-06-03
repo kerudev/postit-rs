@@ -36,7 +36,7 @@ impl FilePersister for Csv {
     }
 
     #[inline]
-    fn path(&self) -> &PathBuf {
+    fn path(&self) -> &Path {
         &self.path
     }
 

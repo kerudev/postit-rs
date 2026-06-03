@@ -2,7 +2,7 @@
 
 use std::fmt::{self, Debug};
 use std::fs::File;
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::models::{Task, Todo};
 use crate::Action;
@@ -91,7 +91,7 @@ pub trait FilePersister: Debug {
     fn boxed(self) -> Box<dyn FilePersister>;
 
     /// Returns the file's path.
-    fn path(&self) -> &PathBuf;
+    fn path(&self) -> &Path;
 
     /// Returns the default value used to initialize the file.
     fn default(&self) -> String;
