@@ -149,7 +149,7 @@ impl FilePersister for Xml {
     }
 
     #[inline]
-    fn path(&self) -> &PathBuf {
+    fn path(&self) -> &Path {
         &self.path
     }
 
