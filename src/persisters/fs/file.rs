@@ -219,7 +219,7 @@ impl Persister for File {
             return Err(crate::Error::wrap(err));
         }
 
-        println!("Creating '{path:?}'");
+        println!("Creating '{}'", path.display());
 
         fs::write(path, self.file.default())?;
 
@@ -307,11 +307,11 @@ impl Persister for File {
         }
 
         self.file.clean().map_err(|e| {
-            eprintln!("Can't clean '{file:?}'");
+            eprintln!("Can't clean '{}'", file.display());
             crate::Error::Fs(e)
         })?;
 
-        println!("Cleaned '{file:?}'");
+        println!("Cleaned '{}'", file.display());
 
         Ok(())
     }
@@ -326,11 +326,11 @@ impl Persister for File {
         }
 
         self.file.remove().map_err(|e| {
-            eprintln!("Can't delete the '{file:?}' file");
+            eprintln!("Can't delete the '{}' file", file.display());
             crate::Error::Fs(e)
         })?;
 
-        println!("Removed the '{file:?}' file");
+        println!("Removed the '{}' file", file.display());
 
         Ok(())
     }
