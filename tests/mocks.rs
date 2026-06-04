@@ -127,7 +127,7 @@ impl MockPath {
             _ => Self::csv(name),
         };
 
-        let path = file.path().clone();
+        let path = file.path().to_path_buf();
 
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)?;

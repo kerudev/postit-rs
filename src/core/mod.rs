@@ -7,7 +7,7 @@ mod error;
 mod postit;
 
 pub use cli::{Cli, Command};
-pub use error::Error;
+pub use error::{Error, Result};
 pub use postit::Postit;
 
 use core::fmt;

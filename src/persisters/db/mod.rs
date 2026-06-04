@@ -13,7 +13,7 @@ mod orm;
 
 #[cfg(feature = "sqlite")]
 mod sqlite;
-pub use error::Error;
+pub use error::{Error, Result};
 #[cfg(feature = "mongo")]
 pub use mongo::Mongo;
 

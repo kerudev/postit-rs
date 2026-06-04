@@ -57,7 +57,7 @@ fn path() -> postit::Result<()> {
 
     let file = File::from(mock.to_string())?;
 
-    let result = file.path().clone();
+    let result = file.path();
     let expect = mock.path();
 
     assert_eq!(result, expect);
