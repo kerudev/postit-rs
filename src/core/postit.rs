@@ -33,7 +33,10 @@ impl Postit {
     #[inline]
     pub fn run(cli: Cli) -> super::Result<()> {
         match cli.command {
-            Command::Docs(args) => Ok(Self::docs(&args)),
+            Command::Docs(args) => {
+                Self::docs(&args);
+                Ok(())
+            }
             Command::Config(args) => Self::config(args),
             Command::View(args) => Self::view(args),
             Command::Add(args) => Self::add(args),

@@ -174,7 +174,7 @@ impl Persister for Orm {
 
     #[inline]
     fn view(&self) -> crate::Result<()> {
-        Ok(Todo::new(self.tasks()?).view()?)
+        Todo::new(self.tasks()?).view()
     }
 
     #[inline]
