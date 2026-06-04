@@ -46,7 +46,7 @@ impl FilePersister for Csv {
     }
 
     #[inline]
-    fn tasks(&self) -> anyhow::Result<Vec<Task>> {
+    fn tasks(&self) -> super::Result<Vec<Task>> {
         let lines: Vec<String> = fs::read_to_string(&self.path)?
             .lines()
             .map(|line| line.trim().to_owned())
@@ -59,12 +59,12 @@ impl FilePersister for Csv {
     }
 
     #[inline]
-    fn open(&self) -> anyhow::Result<fs::File> {
+    fn open(&self) -> super::Result<fs::File> {
         Ok(fs::File::open(&self.path)?)
     }
 
     #[inline]
-    fn write(&self, todo: &Todo) -> anyhow::Result<()> {
+    fn write(&self, todo: &Todo) -> super::Result<()> {
         let sep = if cfg!(windows) { "\r\n" } else { "\n" };
 
         let mut bytes = Self::header().into_bytes();
@@ -84,14 +84,14 @@ impl FilePersister for Csv {
     }
 
     #[inline]
-    fn clean(&self) -> anyhow::Result<()> {
+    fn clean(&self) -> super::Result<()> {
         fs::write(&self.path, self.default())?;
 
         Ok(())
     }
 
     #[inline]
-    fn remove(&self) -> anyhow::Result<()> {
+    fn remove(&self) -> super::Result<()> {
         fs::remove_file(&self.path)?;
 
         Ok(())

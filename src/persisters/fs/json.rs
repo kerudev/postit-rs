@@ -46,7 +46,7 @@ impl FilePersister for Json {
     }
 
     #[inline]
-    fn tasks(&self) -> anyhow::Result<Vec<Task>> {
+    fn tasks(&self) -> super::Result<Vec<Task>> {
         let content = fs::read_to_string(&self.path)?;
         let tasks = serde_json::from_str(content.trim())?;
 
@@ -54,7 +54,7 @@ impl FilePersister for Json {
     }
 
     #[inline]
-    fn open(&self) -> anyhow::Result<fs::File> {
+    fn open(&self) -> super::Result<fs::File> {
         let file = fs::OpenOptions::new()
             .read(true)
             .write(true)
@@ -66,21 +66,21 @@ impl FilePersister for Json {
     }
 
     #[inline]
-    fn write(&self, todo: &Todo) -> anyhow::Result<()> {
+    fn write(&self, todo: &Todo) -> super::Result<()> {
         serde_json::to_writer_pretty(self.open()?, &todo.tasks)?;
 
         Ok(())
     }
 
     #[inline]
-    fn clean(&self) -> anyhow::Result<()> {
+    fn clean(&self) -> super::Result<()> {
         fs::write(&self.path, self.default())?;
 
         Ok(())
     }
 
     #[inline]
-    fn remove(&self) -> anyhow::Result<()> {
+    fn remove(&self) -> super::Result<()> {
         fs::remove_file(&self.path)?;
 
         Ok(())

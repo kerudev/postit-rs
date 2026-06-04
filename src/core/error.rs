@@ -2,6 +2,9 @@
 
 use thiserror::Error;
 
+/// Convenience type for database related operations.
+pub type Result<T> = std::result::Result<T, self::Error>;
+
 /// Global error handler.
 #[non_exhaustive]
 #[derive(Error, Debug)]
@@ -22,4 +25,19 @@ pub enum Error {
     /// Used for I/O errors ([`std::io::Error`]).
     #[error(transparent)]
     Io(#[from] std::io::Error),
+
+    /// Any error that doesn't belong into the previous variants.
+    #[error(transparent)]
+    Other(#[from] Box<dyn std::error::Error + Send + Sync>),
+}
+
+impl Error {
+    /// Wraps any error-like value into [`Error::Other`].
+    #[inline]
+    pub fn wrap<E>(err: E) -> Self
+    where
+        E: Into<Box<dyn std::error::Error + Send + Sync>>,
+    {
+        Self::Other(err.into())
+    }
 }

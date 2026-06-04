@@ -2,6 +2,9 @@
 
 use thiserror::Error;
 
+/// Convenience type for database related operations.
+pub type Result<T> = std::result::Result<T, self::Error>;
+
 /// Errors related to databases and connection strings.
 #[non_exhaustive]
 #[derive(Error, Debug)]
@@ -23,4 +26,19 @@ pub enum Error {
     #[cfg(feature = "mongo")]
     #[error("Error on MongoDB: {0}")]
     Mongo(#[from] mongodb::error::Error),
+
+    /// Any error that doesn't belong into the previous variants.
+    #[error(transparent)]
+    Other(#[from] Box<dyn std::error::Error + Send + Sync>),
+}
+
+impl Error {
+    /// Wraps any error-like value into [`Error::Other`].
+    #[inline]
+    pub fn wrap<E>(err: E) -> Self
+    where
+        E: Into<Box<dyn std::error::Error + Send + Sync>>,
+    {
+        Self::Other(err.into())
+    }
 }

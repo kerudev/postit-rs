@@ -7,8 +7,6 @@ use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 use std::{fmt, fs};
 
-use anyhow::bail;
-
 #[cfg(feature = "json")]
 use super::Json;
 #[cfg(feature = "xml")]
@@ -94,7 +92,7 @@ impl File {
     /// # Panics
     /// - The parent directory can't be obtained (only in case it has to be created).
     #[inline]
-    pub fn from<T: AsRef<str>>(path: T) -> anyhow::Result<Self> {
+    pub fn from<T: AsRef<str>>(path: T) -> crate::Result<Self> {
         let file_name = Self::check_name(path.as_ref());
         let file_path = Config::build_path(file_name)?;
 
@@ -120,7 +118,7 @@ impl File {
     /// # Panics
     /// - The file name can't be obtained.
     #[inline]
-    pub fn check_content(&self) -> anyhow::Result<()> {
+    pub fn check_content(&self) -> crate::fs::Result<()> {
         let path = &self.path();
 
         if path.exists() {
@@ -169,11 +167,11 @@ impl File {
     /// # Panics
     /// - The file extension can't be converted to `&str`.
     #[inline]
-    pub fn get_persister<T: AsRef<Path>>(path: T) -> anyhow::Result<Box<dyn FilePersister>> {
+    pub fn get_persister<T: AsRef<Path>>(path: T) -> crate::Result<Box<dyn FilePersister>> {
         let mut file_path = path.as_ref().to_path_buf();
 
         if file_path.is_dir() {
-            bail!(error::Error::IsDirectory);
+            return Err(crate::Error::Fs(error::Error::IsDirectory));
         }
 
         let ext = file_path
@@ -213,11 +211,12 @@ impl Persister for File {
     }
 
     #[inline]
-    fn create(&self) -> anyhow::Result<()> {
+    fn create(&self) -> crate::Result<()> {
         let path = self.path();
 
         if path.exists() {
-            bail!("The file already exists");
+            let err = "The file already exists";
+            return Err(crate::Error::wrap(err));
         }
 
         println!("Creating '{path:?}'");
@@ -228,16 +227,16 @@ impl Persister for File {
     }
 
     #[inline]
-    fn exists(&self) -> anyhow::Result<bool> {
+    fn exists(&self) -> crate::Result<bool> {
         Ok(self.path().exists())
     }
 
     #[inline]
-    fn view(&self) -> anyhow::Result<()> {
+    fn view(&self) -> crate::Result<()> {
         let path = self.path();
 
         if !path.exists() {
-            return Err(super::Error::FileDoesntExist(path.to_path_buf()));
+            return Err(super::Error::FileDoesntExist(path.to_path_buf()).into());
         }
 
         Todo::new(self.tasks()?).view()?;
@@ -246,36 +245,52 @@ impl Persister for File {
     }
 
     #[inline]
-    fn tasks(&self) -> anyhow::Result<Vec<Task>> {
+    fn tasks(&self) -> crate::Result<Vec<Task>> {
         if !self.exists()? {
             return Ok(Vec::new());
         }
 
-        self.file.tasks()
+        Ok(self.file.tasks()?)
     }
 
     #[inline]
-    fn edit(&self, todo: &Todo, _ids: &[u32], _action: &Action) -> anyhow::Result<()> {
+    fn edit(&self, todo: &Todo, _ids: &[u32], action: &Action) -> crate::Result<()> {
         let path = self.path();
 
         if !path.exists() {
-            bail!(super::Error::FileDoesntExist(path.to_path_buf()));
+            return Err(super::Error::FileDoesntExist(path.to_path_buf()).into());
         }
 
-        self.file.write(todo)
+        self.file.write(todo).map_err(|e| {
+            eprintln!(
+                "Can't perform the {action} operation on '{}'",
+                path.file_name().unwrap().to_string_lossy()
+            );
+            crate::Error::Fs(e)
+        })
     }
 
     #[inline]
-    fn save(&self, todo: &Todo) -> anyhow::Result<()> {
-        self.file.write(todo)
+    fn save(&self, todo: &Todo) -> crate::Result<()> {
+        self.file.write(todo).map_err(|e| {
+            let path = self.path();
+            let file = path.file_name().unwrap().to_string_lossy();
+
+            eprintln!("Can't save the '{file}' file");
+
+            crate::Error::Fs(e)
+        })
     }
 
     #[inline]
-    fn replace(&self, todo: &Todo) -> anyhow::Result<()> {
+    fn replace(&self, todo: &Todo) -> crate::Result<()> {
         let path = self.path();
         let file = path.file_name().unwrap().to_string_lossy();
 
-        self.file.write(todo)?;
+        self.file.write(todo).map_err(|e| {
+            eprintln!("Can't replace the tasks of '{file}'");
+            crate::Error::Fs(e)
+        })?;
 
         println!("Replaced the tasks of '{file}'");
 
@@ -283,15 +298,18 @@ impl Persister for File {
     }
 
     #[inline]
-    fn clean(&self) -> anyhow::Result<()> {
+    fn clean(&self) -> crate::Result<()> {
         let path = self.path();
         let file = path.to_path_buf();
 
         if !path.exists() {
-            bail!(super::Error::FileDoesntExist(file));
+            return Err(super::Error::FileDoesntExist(file).into());
         }
 
-        self.file.clean()?;
+        self.file.clean().map_err(|e| {
+            eprintln!("Can't clean '{file:?}'");
+            crate::Error::Fs(e)
+        })?;
 
         println!("Cleaned '{file:?}'");
 
@@ -299,15 +317,18 @@ impl Persister for File {
     }
 
     #[inline]
-    fn remove(&self) -> anyhow::Result<()> {
+    fn remove(&self) -> crate::Result<()> {
         let path = self.path();
         let file = path.to_path_buf();
 
         if !path.exists() {
-            bail!(super::Error::FileDoesntExist(file));
+            return Err(super::Error::FileDoesntExist(file).into());
         }
 
-        self.file.remove()?;
+        self.file.remove().map_err(|e| {
+            eprintln!("Can't delete the '{file:?}' file");
+            crate::Error::Fs(e)
+        })?;
 
         println!("Removed the '{file:?}' file");
 
