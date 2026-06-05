@@ -185,7 +185,7 @@ impl Todo {
     }
 
     /// Drops a task from the list.
-    /// Returns a `Vec<u32>` containing the IDs of the tasks that changed.    
+    /// Returns a `Vec<u32>` containing the IDs of the tasks that changed.
     ///
     /// # Errors
     /// - If there are no tasks stored in the instance.
