@@ -21,7 +21,6 @@ pub struct Sqlite {
 }
 
 impl fmt::Debug for Sqlite {
-    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Sqlite")
             .field("conn_str", &self.conn_str)
@@ -31,7 +30,6 @@ impl fmt::Debug for Sqlite {
 }
 
 impl Clone for Sqlite {
-    #[inline]
     fn clone(&self) -> Self {
         Self {
             conn_str: self.conn_str.clone(),
@@ -49,7 +47,6 @@ impl Sqlite {
     ///
     /// # Panics
     /// - The path can't be converted to &str.
-    #[inline]
     pub fn from<T: AsRef<Path>>(conn: T) -> crate::Result<Self> {
         let path = Config::build_path(conn.as_ref())?;
 
@@ -66,7 +63,6 @@ impl Sqlite {
     }
 
     /// Returns the desired ids format to be used in a query.
-    #[inline]
     pub fn format_ids(&self, ids: &[u32]) -> String {
         ids.iter()
             .map(|&n| n.to_string())
@@ -78,7 +74,6 @@ impl Sqlite {
     ///
     /// # Errors
     /// - A value can't be read.
-    #[inline]
     pub fn read_row(&self, stmt: &Statement) -> super::Result<String> {
         let row = format!(
             "{},{},{},{}",
@@ -95,7 +90,6 @@ impl Sqlite {
     ///
     /// # Errors
     /// - The statement can't be evaluated.
-    #[inline]
     pub fn reset_autoincrement(&self, table: &str) -> sqlite::Result<State> {
         #[rustfmt::skip]
         let query = format!("
@@ -114,17 +108,14 @@ impl DbPersister for Sqlite {
         Box::new(self)
     }
 
-    #[inline]
     fn conn(&self) -> String {
         self.conn_str.clone()
     }
 
-    #[inline]
     fn table(&self) -> String {
         String::from("tasks")
     }
 
-    #[inline]
     fn database(&self) -> String {
         Path::new(&self.conn_str)
             .file_name()
@@ -139,7 +130,6 @@ impl DbPersister for Sqlite {
     /// # Errors
     /// - The statement can't be prepared.
     /// - The name column can't be read.
-    #[inline]
     fn exists(&self) -> super::Result<bool> {
         #[rustfmt::skip]
         let query = format!("
@@ -160,7 +150,6 @@ impl DbPersister for Sqlite {
         Ok(!result.is_empty())
     }
 
-    #[inline]
     fn tasks(&self) -> super::Result<Vec<Task>> {
         if !self.exists()? {
             let err = format!(
@@ -182,7 +171,6 @@ impl DbPersister for Sqlite {
         Ok(result)
     }
 
-    #[inline]
     fn count(&self) -> super::Result<u32> {
         if !self.exists()? {
             return Ok(0);
@@ -198,7 +186,6 @@ impl DbPersister for Sqlite {
         Ok(n)
     }
 
-    #[inline]
     fn create(&self) -> super::Result<()> {
         #[rustfmt::skip]
         let query = format!("
@@ -217,7 +204,6 @@ impl DbPersister for Sqlite {
         Ok(())
     }
 
-    #[inline]
     fn insert(&self, todo: &Todo) -> super::Result<()> {
         #[rustfmt::skip]
         let query = format!("
@@ -243,7 +229,6 @@ impl DbPersister for Sqlite {
         Ok(())
     }
 
-    #[inline]
     fn update(&self, todo: &Todo, ids: &[u32], action: &Action) -> super::Result<()> {
         if matches!(action, Action::Drop) {
             return self.delete(ids);
@@ -272,7 +257,6 @@ impl DbPersister for Sqlite {
         Ok(())
     }
 
-    #[inline]
     fn delete(&self, ids: &[u32]) -> super::Result<()> {
         #[rustfmt::skip]
         let query = format!("
@@ -288,7 +272,6 @@ impl DbPersister for Sqlite {
         Ok(())
     }
 
-    #[inline]
     fn drop_table(&self) -> super::Result<()> {
         let table = self.table();
         let query = format!("DROP TABLE {table}");
@@ -300,7 +283,6 @@ impl DbPersister for Sqlite {
         Ok(())
     }
 
-    #[inline]
     fn drop_database(&self) -> super::Result<()> {
         fs::remove_file(self.conn()).map_err(super::Error::wrap)?;
 
@@ -309,7 +291,6 @@ impl DbPersister for Sqlite {
         Ok(())
     }
 
-    #[inline]
     fn clean(&self) -> super::Result<()> {
         let table = self.table();
         let query = format!("DELETE FROM {table}");

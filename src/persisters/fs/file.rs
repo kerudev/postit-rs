@@ -32,7 +32,6 @@ pub enum Format {
 
 impl<T: AsRef<str>> From<T> for Format {
     /// Transforms a string slice into a `Format` variant.
-    #[inline]
     fn from(s: T) -> Self {
         match s.as_ref().to_lowercase().trim() {
             "csv" => Self::Csv,
@@ -50,7 +49,6 @@ impl<T: AsRef<str>> From<T> for Format {
 
 impl Format {
     /// Returns the `Priority` value as its string representation.
-    #[inline]
     pub const fn to_str(&self) -> &str {
         match *self {
             Self::Csv => "csv",
@@ -69,7 +67,6 @@ pub struct File {
 }
 
 impl fmt::Debug for File {
-    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("File").field("file", &self.path()).finish()
     }
@@ -91,7 +88,6 @@ impl File {
     ///
     /// # Panics
     /// - The parent directory can't be obtained (only in case it has to be created).
-    #[inline]
     pub fn from<T: AsRef<str>>(path: T) -> crate::Result<Self> {
         let file_name = Self::check_name(path.as_ref());
         let file_path = Config::build_path(file_name)?;
@@ -117,7 +113,6 @@ impl File {
     ///
     /// # Panics
     /// - The file name can't be obtained.
-    #[inline]
     pub fn check_content(&self) -> crate::fs::Result<()> {
         let path = &self.path();
 
@@ -133,7 +128,6 @@ impl File {
     }
 
     /// Checks the format of a file and return the same instance with the correct format.
-    #[inline]
     pub fn check_name<T: AsRef<Path>>(path: T) -> PathBuf {
         let mut path = path.as_ref().to_path_buf();
 
@@ -166,7 +160,6 @@ impl File {
     ///
     /// # Panics
     /// - The file extension can't be converted to `&str`.
-    #[inline]
     pub fn get_persister<T: AsRef<Path>>(path: T) -> crate::Result<Box<dyn FilePersister>> {
         let mut file_path = path.as_ref().to_path_buf();
 
@@ -205,12 +198,10 @@ impl Persister for File {
         Box::new(self)
     }
 
-    #[inline]
     fn to_string(&self) -> String {
         self.path().to_str().unwrap().to_owned()
     }
 
-    #[inline]
     fn create(&self) -> crate::Result<()> {
         let path = self.path();
 
@@ -226,12 +217,10 @@ impl Persister for File {
         Ok(())
     }
 
-    #[inline]
     fn exists(&self) -> crate::Result<bool> {
         Ok(self.path().exists())
     }
 
-    #[inline]
     fn view(&self) -> crate::Result<()> {
         let path = self.path();
 
@@ -244,7 +233,6 @@ impl Persister for File {
         Ok(())
     }
 
-    #[inline]
     fn tasks(&self) -> crate::Result<Vec<Task>> {
         if !self.exists()? {
             return Ok(Vec::new());
@@ -253,7 +241,6 @@ impl Persister for File {
         Ok(self.file.tasks()?)
     }
 
-    #[inline]
     fn edit(&self, todo: &Todo, _ids: &[u32], action: &Action) -> crate::Result<()> {
         let path = self.path();
 
@@ -270,7 +257,6 @@ impl Persister for File {
         })
     }
 
-    #[inline]
     fn save(&self, todo: &Todo) -> crate::Result<()> {
         self.file.write(todo).map_err(|e| {
             let path = self.path();
@@ -282,7 +268,6 @@ impl Persister for File {
         })
     }
 
-    #[inline]
     fn replace(&self, todo: &Todo) -> crate::Result<()> {
         let path = self.path();
         let file = path.file_name().unwrap().to_string_lossy();
@@ -297,7 +282,6 @@ impl Persister for File {
         Ok(())
     }
 
-    #[inline]
     fn clean(&self) -> crate::Result<()> {
         let path = self.path();
         let file = path.to_path_buf();
@@ -316,7 +300,6 @@ impl Persister for File {
         Ok(())
     }
 
-    #[inline]
     fn remove(&self) -> crate::Result<()> {
         let path = self.path();
         let file = path.to_path_buf();
@@ -337,7 +320,6 @@ impl Persister for File {
 }
 
 impl PartialEq for File {
-    #[inline]
     fn eq(&self, other: &Self) -> bool {
         (self.to_string() == other.to_string()) && (self.tasks().unwrap() == other.tasks().unwrap())
     }

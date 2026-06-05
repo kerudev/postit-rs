@@ -12,11 +12,7 @@
 //!
 //! To get more info, run `postit -h` or take a look to the README file.
 
-#![warn(
-    clippy::missing_docs_in_private_items,
-    clippy::missing_inline_in_public_items,
-    missing_docs
-)]
+#![warn(clippy::missing_docs_in_private_items, missing_docs)]
 #![allow(
     // TMP
     clippy::expect_used,

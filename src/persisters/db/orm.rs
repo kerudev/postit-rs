@@ -30,7 +30,6 @@ pub enum Protocol {
 
 impl<T: AsRef<str>> From<T> for Protocol {
     /// Transforms a string slice into a `Protocol` variant.
-    #[inline]
     fn from(s: T) -> Self {
         match s.as_ref().to_lowercase().trim() {
             "sqlite" => Self::Sqlite,
@@ -46,7 +45,6 @@ impl<T: AsRef<str>> From<T> for Protocol {
 
 impl Protocol {
     /// Returns the `Protocol` value as its string representation.
-    #[inline]
     pub const fn to_str(&self) -> &str {
         match *self {
             Self::Sqlite => "sqlite",
@@ -57,7 +55,6 @@ impl Protocol {
 }
 
 impl fmt::Display for Protocol {
-    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Self::Sqlite => write!(f, "sqlite"),
@@ -74,7 +71,6 @@ pub struct Orm {
 }
 
 impl fmt::Debug for Orm {
-    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Orm")
             .field("db", &self.to_string())
@@ -94,7 +90,6 @@ impl Orm {
     ///
     /// # Errors
     /// - The database persister can't be obtained.
-    #[inline]
     pub fn from<T: AsRef<str>>(conn: T) -> crate::Result<Self> {
         Ok(Self { db: Self::get_persister(conn)? })
     }
@@ -118,7 +113,6 @@ impl Orm {
     /// # Errors
     /// - If the persister can't be obtained.
     /// - If the connection string is empty.
-    #[inline]
     pub fn get_persister<T: AsRef<str>>(conn: T) -> crate::Result<Box<dyn DbPersister>> {
         let conn = conn.as_ref();
 
@@ -151,12 +145,10 @@ impl Persister for Orm {
         Box::new(self)
     }
 
-    #[inline]
     fn to_string(&self) -> String {
         self.db.conn()
     }
 
-    #[inline]
     fn create(&self) -> crate::Result<()> {
         self.db.create().map_err(|e| {
             eprintln!("Can't create the table");
@@ -164,7 +156,6 @@ impl Persister for Orm {
         })
     }
 
-    #[inline]
     fn exists(&self) -> crate::Result<bool> {
         self.db.exists().map_err(|e| {
             eprintln!("The table doesn't exist; add a task first to use this command");
@@ -172,17 +163,14 @@ impl Persister for Orm {
         })
     }
 
-    #[inline]
     fn view(&self) -> crate::Result<()> {
         Todo::new(self.tasks()?).view()
     }
 
-    #[inline]
     fn tasks(&self) -> crate::Result<Vec<Task>> {
         Ok(self.db.tasks()?)
     }
 
-    #[inline]
     fn edit(&self, todo: &Todo, ids: &[u32], action: &Action) -> crate::Result<()> {
         self.db.update(todo, ids, action).map_err(|e| {
             eprintln!("Can't perform the '{action}' action");
@@ -190,7 +178,6 @@ impl Persister for Orm {
         })
     }
 
-    #[inline]
     fn save(&self, todo: &Todo) -> crate::Result<()> {
         if self.db.count()? == 0 {
             return self.db.insert(todo).map_err(|e| {
@@ -208,7 +195,6 @@ impl Persister for Orm {
         })
     }
 
-    #[inline]
     fn replace(&self, todo: &Todo) -> crate::Result<()> {
         if self.exists()? {
             self.db.clean()?;
@@ -224,7 +210,6 @@ impl Persister for Orm {
         Ok(())
     }
 
-    #[inline]
     fn clean(&self) -> crate::Result<()> {
         if self.tasks()?.is_empty() {
             eprintln!("There are no tasks to delete in the table");
@@ -241,7 +226,6 @@ impl Persister for Orm {
         Ok(())
     }
 
-    #[inline]
     fn remove(&self) -> crate::Result<()> {
         let table = self.db.table();
 

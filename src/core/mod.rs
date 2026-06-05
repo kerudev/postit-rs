@@ -29,7 +29,6 @@ pub enum Action {
 }
 
 impl fmt::Display for Action {
-    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Self::Check => write!(f, "check"),

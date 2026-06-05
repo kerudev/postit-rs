@@ -45,7 +45,6 @@ impl Todo {
     }
 
     /// Returns tasks based on the ids passed.
-    #[inline]
     pub fn get(&self, ids: &[u32]) -> Vec<&Task> {
         self.tasks
             .iter()
@@ -54,7 +53,6 @@ impl Todo {
     }
 
     /// Returns tasks based on the ids passed.
-    #[inline]
     pub fn get_mut(&mut self, ids: &[u32]) -> Vec<&mut Task> {
         self.tasks
             .iter_mut()
@@ -63,7 +61,6 @@ impl Todo {
     }
 
     /// Initializes a `Todo` instance with fake data.
-    #[inline]
     pub fn sample() -> Self {
         Self::new(vec![
             Task::from("1,Task,high,false"),
@@ -77,7 +74,6 @@ impl Todo {
     ///
     /// # Errors
     /// - There are no tasks stored in the instance.
-    #[inline]
     pub fn view(&self) -> crate::Result<()> {
         if self.tasks.is_empty() {
             let err = "There are no tasks to print";
@@ -101,7 +97,6 @@ impl Todo {
     ///
     /// # Errors
     /// - Bubbled up from [`Todo::set_priority`] or [`Todo::set_content`].
-    #[inline]
     pub fn set(&mut self, cmnd: &sub::Set) -> crate::Result<()> {
         match cmnd {
             sub::Set::Priority(args) => self.set_priority(&args.ids, &args.priority),
@@ -113,7 +108,6 @@ impl Todo {
     ///
     /// # Errors
     /// - There are no tasks stored in the instance.
-    #[inline]
     pub fn set_priority(&mut self, ids: &[u32], priority: &Priority) -> crate::Result<()> {
         if self.tasks.is_empty() {
             let err = "There are no tasks to edit";
@@ -131,7 +125,6 @@ impl Todo {
     ///
     /// # Errors
     /// - There are no tasks stored in the instance.
-    #[inline]
     pub fn set_content(&mut self, ids: &[u32], content: &str) -> crate::Result<()> {
         if self.tasks.is_empty() {
             let err = "There are no tasks to edit";
@@ -150,7 +143,6 @@ impl Todo {
     ///
     /// # Errors
     /// - There are no tasks stored in the instance.
-    #[inline]
     pub fn check(&mut self, ids: &[u32]) -> crate::Result<Vec<u32>> {
         if self.tasks.is_empty() {
             let err = "There are no tasks to check";
@@ -174,7 +166,6 @@ impl Todo {
     ///
     /// # Errors
     /// - There are no tasks stored in the instance.
-    #[inline]
     pub fn uncheck(&mut self, ids: &[u32]) -> crate::Result<Vec<u32>> {
         if self.tasks.is_empty() {
             let err = "There are no tasks to uncheck";
@@ -199,7 +190,6 @@ impl Todo {
     /// # Errors
     /// - If there are no tasks stored in the instance.
     /// - The configuration can't be loaded.
-    #[inline]
     pub fn drop(&mut self, ids: &[u32]) -> crate::Result<Vec<u32>> {
         if self.tasks.is_empty() {
             let err = "There are no tasks to drop";

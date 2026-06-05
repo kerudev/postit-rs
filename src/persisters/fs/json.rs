@@ -23,7 +23,6 @@ impl Json {
     }
 
     /// Returns the basic structure to initialize a JSON file.
-    #[inline]
     pub fn array() -> String {
         String::from("[]")
     }
@@ -40,12 +39,10 @@ impl FilePersister for Json {
         &self.path
     }
 
-    #[inline]
     fn default(&self) -> String {
         Self::array()
     }
 
-    #[inline]
     fn tasks(&self) -> super::Result<Vec<Task>> {
         let content = fs::read_to_string(&self.path)?;
         let tasks = serde_json::from_str(content.trim())?;
@@ -53,7 +50,6 @@ impl FilePersister for Json {
         Ok(tasks)
     }
 
-    #[inline]
     fn open(&self) -> super::Result<fs::File> {
         let file = fs::OpenOptions::new()
             .read(true)
@@ -65,21 +61,18 @@ impl FilePersister for Json {
         Ok(file)
     }
 
-    #[inline]
     fn write(&self, todo: &Todo) -> super::Result<()> {
         serde_json::to_writer_pretty(self.open()?, &todo.tasks)?;
 
         Ok(())
     }
 
-    #[inline]
     fn clean(&self) -> super::Result<()> {
         fs::write(&self.path, self.default())?;
 
         Ok(())
     }
 
-    #[inline]
     fn remove(&self) -> super::Result<()> {
         fs::remove_file(&self.path)?;
 

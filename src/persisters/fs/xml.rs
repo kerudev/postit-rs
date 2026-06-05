@@ -28,33 +28,30 @@ impl Xml {
     }
 
     /// Basic structure to initialize a XML file.
-    #[inline]
-    pub fn prolog() -> String {
-        String::from(r#"<?xml version="1.0" encoding="UTF-8"?>"#) + "\n"
+    pub const fn prolog() -> &'static str {
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+"#
     }
 
     /// Document Type Definition of a XML file.
     #[rustfmt::skip]
-    #[inline]
-    pub fn dtd() -> String {
-        String::from(
-"<!DOCTYPE Tasks [
+    pub const fn dtd() -> &'static str {
+        "<!DOCTYPE Tasks [
     <!ELEMENT Tasks (Task+)>
     <!ELEMENT Task (#PCDATA)>
-    <!ATTLIST Task 
+    <!ATTLIST Task
         id CDATA #REQUIRED
         priority (low | med | high | none) #REQUIRED
         checked (true | false) #REQUIRED
     >
-]>\n",
-        )
+]>
+"
     }
 
     /// Writes a [Todo] instance into XML writer and returns a buffer with the content.
     ///
     /// # Errors
     /// - The XML Event can't be written.
-    #[inline]
     pub fn todo_to_xml(todo: &Todo) -> super::Result<Vec<u8>> {
         let mut buffer = Vec::new();
         let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
@@ -74,7 +71,6 @@ impl Xml {
     ///
     /// # Errors
     /// - The XML Event can't be written.
-    #[inline]
     pub fn task_to_xml(writer: &mut Writer<&mut Vec<u8>>, task: &Task) -> io::Result<()> {
         let mut task_bytes = BytesStart::new("Task");
         task_bytes.push_attribute(("id", task.id.to_string().as_str()));
@@ -92,7 +88,6 @@ impl Xml {
     ///
     /// # Errors
     /// - A value can't be unescaped.
-    #[inline]
     pub fn xml_to_tasks(mut reader: Reader<&[u8]>) -> super::Result<Vec<Task>> {
         let mut tasks = vec![];
         let mut task = None::<Task>;
@@ -155,10 +150,9 @@ impl FilePersister for Xml {
 
     #[inline]
     fn default(&self) -> String {
-        Self::prolog() + &Self::dtd()
+        String::from(Self::prolog()) + Self::dtd()
     }
 
-    #[inline]
     fn tasks(&self) -> super::Result<Vec<Task>> {
         let xml = fs::read_to_string(&self.path)?;
         let reader = Reader::from_str(xml.trim());
@@ -166,7 +160,6 @@ impl FilePersister for Xml {
         Self::xml_to_tasks(reader)
     }
 
-    #[inline]
     fn open(&self) -> super::Result<fs::File> {
         let file = fs::OpenOptions::new()
             .read(true)
@@ -178,7 +171,6 @@ impl FilePersister for Xml {
         Ok(file)
     }
 
-    #[inline]
     fn write(&self, todo: &Todo) -> super::Result<()> {
         let buffer = Self::todo_to_xml(todo)?;
         let xml = String::from_utf8(buffer).map_err(super::Error::wrap)?;
@@ -190,14 +182,12 @@ impl FilePersister for Xml {
         Ok(())
     }
 
-    #[inline]
     fn clean(&self) -> super::Result<()> {
         fs::write(&self.path, self.default())?;
 
         Ok(())
     }
 
-    #[inline]
     fn remove(&self) -> super::Result<()> {
         fs::remove_file(&self.path)?;
 
