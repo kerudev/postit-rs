@@ -93,7 +93,7 @@ Usage: postit add <PRIORITY> <CONTENT> [--persister|-p]
 Alias: postit a ...
 
 Description:
-    Creates a task with the format 'id,content,priority,checked': 
+    Creates a task with the format 'id,content,priority,checked':
     - id: a unique unsigned integer.
     - content: description of the task.
     - priority: high, med, low or none.
@@ -187,7 +187,7 @@ Alias: postit s ...
 
 Description:
     Changes the value of task's properties.
-    
+
     These are the available subcommands:
     - content: postit set content <CONTENT> [IDS]...
     - priority: postit set priority <PRIORITY> [IDS]..."
@@ -271,7 +271,7 @@ How to use:
             println!(
                 "
 Config:
-    You can set the 'force_drop' config to 'true' to drop tasks whether 
+    You can set the 'force_drop' config to 'true' to drop tasks whether
     they are checked or not.
 "
             );
@@ -332,7 +332,7 @@ Description:
 
 How to use:
     postit copy tasks.csv tasks.json
-    
+
     postit copy tasks.xml tasks.db
 
     postit copy tasks.db tasks.json
@@ -449,7 +449,7 @@ Config values:
 
     - drop_after_copy (bool): false by default.
       If 'true', drops a persister (file or table) after copying.
-    
+
 You can also check https://docs.rs/postit/latest/postit/struct.Config.html for more info."
         );
     }
@@ -485,9 +485,9 @@ How to use:
     postit view --persister tasks.db
 
     postit view --persister mongodb://localhost:27017
-    
+
     postit view --persister mongodb+srv://my_user:my_pass@cluster.mongodb.net
-    
+
     ..."
         );
     }

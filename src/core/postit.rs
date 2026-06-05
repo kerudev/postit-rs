@@ -239,7 +239,7 @@ impl Postit {
         Self::get_persister(args.persister)?.remove()
     }
 
-    /// Manages the configuration file.   
+    /// Manages the configuration file.
     #[inline]
     fn config(args: args::Config) -> super::Result<()> {
         Ok(Config::manage(args.subcommand)?)

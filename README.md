@@ -17,7 +17,7 @@ postit is a simple CLI utility aimed to help you manage and keep track of your t
 
 - [From 0.1.x to 0.2.x](#from-01x-to-02x): brief migration guide.
 - [Getting started](#getting-started): describes installation and first steps.
-- [Features](#features): postit's functionalities and new additions roadmap. 
+- [Features](#features): postit's functionalities and new additions roadmap.
 - [Configuration](#configuration): describes configuration options.
 
 ## From 0.1.x to 0.2.x
@@ -29,7 +29,7 @@ as some basic commands to manage tasks and the configuration file.
 By bumping the version to 0.2.x, it is intended to mark the first great step
 of postit to becoming a more serious product.
 
-To migrate from 0.1.x to 0.2.x, you'll need to change the `--path` flag to 
+To migrate from 0.1.x to 0.2.x, you'll need to change the `--path` flag to
 `--persister` (pretty simple, right?).
 
 This minor will be focused on providing support for more database systems
@@ -56,7 +56,7 @@ On Linux:
 
 # Feel free to change this line
 export POSTIT_ROOT="$HOME/.postit"
-```  
+```
 
 On Windows:
 
