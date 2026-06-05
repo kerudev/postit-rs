@@ -77,14 +77,12 @@ pub trait Persister: fmt::Debug {
 }
 
 impl PartialEq for Box<dyn Persister> {
-    #[inline]
     fn eq(&self, other: &Self) -> bool {
         (self.to_string() == other.to_string()) && (self.tasks().unwrap() == other.tasks().unwrap())
     }
 }
 
 impl Clone for Box<dyn Persister> {
-    #[inline]
     fn clone(&self) -> Self {
         crate::Postit::get_persister(Some(self.to_string())).unwrap()
     }
@@ -133,7 +131,6 @@ pub trait FilePersister: Debug {
 }
 
 impl PartialEq for Box<dyn FilePersister> {
-    #[inline]
     fn eq(&self, other: &Self) -> bool {
         (self.path() == other.path()) && (self.tasks().unwrap() == other.tasks().unwrap())
     }
@@ -217,7 +214,6 @@ pub trait DbPersister: Debug {
 
 #[cfg(any(feature = "mongo", feature = "sqlite"))]
 impl PartialEq for Box<dyn DbPersister> {
-    #[inline]
     fn eq(&self, other: &Self) -> bool {
         (self.conn() == other.conn()) && (self.tasks().unwrap() == other.tasks().unwrap())
     }

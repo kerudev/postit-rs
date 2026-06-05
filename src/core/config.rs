@@ -92,7 +92,6 @@ pub struct Config {
 }
 
 impl Default for Config {
-    #[inline]
     fn default() -> Self {
         Self {
             persister: String::from("tasks.csv"),
@@ -104,7 +103,6 @@ impl Default for Config {
 }
 
 impl fmt::Display for Config {
-    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "persister: {}", self.persister)?;
         writeln!(f, "force_drop: {}", self.force_drop)?;
@@ -136,7 +134,6 @@ impl Config {
     /// # Errors
     /// - The path can't be obtained.
     /// - The config file already exists at the used path.
-    #[inline]
     pub fn init() -> Result<()> {
         let path = Self::path()?;
 
@@ -165,7 +162,6 @@ impl Config {
     ///
     /// # Errors
     /// - The `POSTIT_ROOT` exists but is empty.
-    #[inline]
     pub fn print_env() -> Result<()> {
         let env = Self::env().unwrap_or_default();
 
@@ -183,7 +179,6 @@ impl Config {
     /// # Errors
     /// - The file doesn't exist at the parent path.
     /// - The path can't be obtained from the `POSTIT_ROOT` env var.
-    #[inline]
     pub fn print_path() -> Result<()> {
         Self::_check_path_exists()?;
 
@@ -202,7 +197,6 @@ impl Config {
     ///
     /// # Panics
     /// - The parent can't be obtained from the path.
-    #[inline]
     pub fn remove() -> Result<()> {
         let path = Self::path()?;
 
@@ -226,7 +220,6 @@ impl Config {
     /// # Errors
     /// - The file doesn't exist at the parent path (displays default config too).
     /// - The configuration can't be loaded.
-    #[inline]
     pub fn list() -> Result<()> {
         let result = Self::_check_path_exists();
 
@@ -249,7 +242,6 @@ impl Config {
     /// - The file doesn't exist at the parent path.
     /// - There are no values provided.
     /// - The configuration can't be loaded.
-    #[inline]
     pub fn set(args: args::ConfigSet) -> Result<()> {
         Self::_check_path_exists()?;
 
@@ -314,7 +306,6 @@ impl Config {
     /// - The `POSTIT_ROOT` exists but is empty.
     /// - The value of `POSTIT_ROOT` contains not unicode characters.
     /// - The path from `POSTIT_ROOT` is relative.
-    #[inline]
     pub fn path_from_env() -> Result<PathBuf> {
         let env = Self::env();
 
@@ -369,7 +360,6 @@ impl Config {
     ///
     /// # Panics
     /// - The parent can't be obtained from the path.
-    #[inline]
     pub fn _check_path_exists() -> Result<()> {
         let path = Self::path()?;
 
@@ -403,7 +393,6 @@ impl Config {
     /// # Panics
     /// - If the path can't be converted to str.
     /// - If the parent path can't be converted to str.
-    #[inline]
     pub fn build_path<T: AsRef<Path>>(path: T) -> Result<PathBuf> {
         let path = path.as_ref();
 
@@ -421,7 +410,6 @@ impl Config {
     /// # Errors
     /// - The config file can't be loaded.
     /// - The config file can't be read.
-    #[inline]
     pub fn load() -> Result<Self> {
         let path = Self::path()?;
 
@@ -446,7 +434,6 @@ impl Config {
     /// - The config file can't be created.
     /// - The config can't be formatted to TOML.
     /// - The config file can't be saved.
-    #[inline]
     pub fn save(&self) -> Result<()> {
         let path = Self::path()?;
 

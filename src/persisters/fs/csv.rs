@@ -23,7 +23,6 @@ impl Csv {
     }
 
     /// Returns the header of a the csv file.
-    #[inline]
     pub fn header() -> String {
         String::from("id,content,priority,checked\n")
     }
@@ -40,12 +39,10 @@ impl FilePersister for Csv {
         &self.path
     }
 
-    #[inline]
     fn default(&self) -> String {
         Self::header()
     }
 
-    #[inline]
     fn tasks(&self) -> super::Result<Vec<Task>> {
         let lines: Vec<String> = fs::read_to_string(&self.path)?
             .lines()
@@ -58,12 +55,10 @@ impl FilePersister for Csv {
         Ok(tasks)
     }
 
-    #[inline]
     fn open(&self) -> super::Result<fs::File> {
         Ok(fs::File::open(&self.path)?)
     }
 
-    #[inline]
     fn write(&self, todo: &Todo) -> super::Result<()> {
         let sep = if cfg!(windows) { "\r\n" } else { "\n" };
 
@@ -83,14 +78,12 @@ impl FilePersister for Csv {
         Ok(())
     }
 
-    #[inline]
     fn clean(&self) -> super::Result<()> {
         fs::write(&self.path, self.default())?;
 
         Ok(())
     }
 
-    #[inline]
     fn remove(&self) -> super::Result<()> {
         fs::remove_file(&self.path)?;
 

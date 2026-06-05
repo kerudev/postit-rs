@@ -59,7 +59,6 @@ impl Postit {
     ///
     /// # Errors
     /// - The persister can't be obtained.
-    #[inline]
     pub fn get_persister<T>(persister: Option<T>) -> crate::Result<Box<dyn Persister>>
     where
         T: AsRef<str>,
@@ -78,16 +77,19 @@ impl Postit {
     }
 
     /// Shows use cases for every other command.
+    #[inline]
     fn docs(args: &args::Docs) {
         Docs::run(&args.subcommand);
     }
 
     /// Shows the list of current tasks.
+    #[inline]
     fn view(args: args::Persister) -> super::Result<()> {
         Self::get_persister(args.persister)?.view()
     }
 
     /// Adds a new task to the list.
+    #[inline]
     fn add(args: args::Add) -> super::Result<()> {
         let persister = Self::get_persister(args.persister)?;
 
@@ -108,6 +110,7 @@ impl Postit {
     }
 
     /// Changes the values of a task depending on the `Set` variant.
+    #[inline]
     fn set(args: args::Set) -> super::Result<()> {
         let persister = Self::get_persister(args.persister)?;
 
@@ -131,6 +134,7 @@ impl Postit {
     }
 
     /// Edits tasks based on the action passed.
+    #[inline]
     fn edit(args: args::Edit, action: &Action) -> super::Result<()> {
         let persister = Self::get_persister(args.persister)?;
 
@@ -158,7 +162,8 @@ impl Postit {
     /// # Errors
     /// - Both persisters are the same.
     /// - The left persister has no tasks.
-    /// - The right persister has tasks.    
+    /// - The right persister has tasks.
+    #[inline]
     fn copy(args: &args::Copy) -> super::Result<()> {
         let config = Config::load()?;
 
@@ -207,6 +212,7 @@ impl Postit {
     }
 
     /// Populates the persister with fake data for testing purposes.
+    #[inline]
     fn sample(args: args::Persister) -> super::Result<()> {
         let persister = Self::get_persister(args.persister)?;
 
@@ -222,16 +228,19 @@ impl Postit {
     }
 
     /// Cleans the tasks from a file.
+    #[inline]
     fn clean(args: args::Persister) -> super::Result<()> {
         Self::get_persister(args.persister)?.clean()
     }
 
     /// Removes a persister completely (file or table).
+    #[inline]
     fn remove(args: args::Persister) -> super::Result<()> {
         Self::get_persister(args.persister)?.remove()
     }
 
     /// Manages the configuration file.   
+    #[inline]
     fn config(args: args::Config) -> super::Result<()> {
         Ok(Config::manage(args.subcommand)?)
     }

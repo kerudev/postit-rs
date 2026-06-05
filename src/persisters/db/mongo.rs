@@ -22,7 +22,6 @@ pub struct Mongo {
 }
 
 impl Clone for Mongo {
-    #[inline]
     fn clone(&self) -> Self {
         Self {
             conn_str: self.conn_str.clone(),
@@ -37,7 +36,6 @@ impl Mongo {
     /// # Errors
     /// - [`ClientOptions`] can't be parsed.
     /// - [`Client`] couldn't be opened.
-    #[inline]
     pub fn from<T: AsRef<str>>(uri: T) -> super::Result<Self> {
         let uri = uri.as_ref();
 
@@ -54,13 +52,11 @@ impl Mongo {
     }
 
     /// Gets a handle to a database specified by name in the cluster the Client is connected to.
-    #[inline]
     pub fn db(&self) -> Database {
         self.connection.database(&self.database())
     }
 
     /// Gets a handle to a collection with type T specified by name of the database.
-    #[inline]
     pub fn collection<T: Send + Sync>(&self) -> Collection<T> {
         self.db().collection::<T>(&self.table())
     }
@@ -72,29 +68,25 @@ impl DbPersister for Mongo {
         Box::new(self)
     }
 
-    #[inline]
     fn conn(&self) -> String {
         self.conn_str.clone()
     }
 
-    #[inline]
     fn table(&self) -> String {
         String::from("tasks")
     }
 
-    #[inline]
     fn database(&self) -> String {
+        // TODO: change to postit
         String::from("test")
     }
 
-    #[inline]
     fn exists(&self) -> super::Result<bool> {
         let names = self.db().list_collection_names().run()?;
 
         Ok(names.contains(&self.table()))
     }
 
-    #[inline]
     fn tasks(&self) -> super::Result<Vec<Task>> {
         if !self.exists()? {
             let err = format!(
@@ -114,7 +106,6 @@ impl DbPersister for Mongo {
         Ok(tasks)
     }
 
-    #[inline]
     fn count(&self) -> super::Result<u32> {
         if !self.exists()? {
             return Ok(0);
@@ -130,7 +121,6 @@ impl DbPersister for Mongo {
         Ok(n)
     }
 
-    #[inline]
     fn create(&self) -> super::Result<()> {
         let table = self.table();
 
@@ -141,7 +131,6 @@ impl DbPersister for Mongo {
         Ok(())
     }
 
-    #[inline]
     fn insert(&self, todo: &Todo) -> super::Result<()> {
         let docs: Vec<Document> = todo
             .tasks
@@ -161,7 +150,6 @@ impl DbPersister for Mongo {
         Ok(())
     }
 
-    #[inline]
     fn update(&self, todo: &Todo, ids: &[u32], action: &Action) -> super::Result<()> {
         if matches!(action, Action::Drop) {
             return self.delete(ids);
@@ -187,7 +175,6 @@ impl DbPersister for Mongo {
         Ok(())
     }
 
-    #[inline]
     fn delete(&self, ids: &[u32]) -> super::Result<()> {
         let query = doc! { "id": {"$in": ids }};
 
@@ -196,7 +183,6 @@ impl DbPersister for Mongo {
         Ok(())
     }
 
-    #[inline]
     fn drop_table(&self) -> super::Result<()> {
         self.collection::<Task>().drop().run()?;
 
@@ -205,7 +191,6 @@ impl DbPersister for Mongo {
         Ok(())
     }
 
-    #[inline]
     fn drop_database(&self) -> super::Result<()> {
         self.db().drop().run()?;
 
@@ -214,7 +199,6 @@ impl DbPersister for Mongo {
         Ok(())
     }
 
-    #[inline]
     fn clean(&self) -> super::Result<()> {
         self.collection::<String>().delete_many(doc! {}).run()?;
 
